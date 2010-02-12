@@ -11,27 +11,63 @@ import chan
 
 from os import listdir
 
-def wsbs():
-    print "Web Server Botnet Researcher started..."
+import Queue
+import threading
+
+print "Web Server Botnet Researcher started..."
+
+file_list = listdir("file/")
+queue = Queue.Queue()
+
+irc_bot = bot.Trojan_Horse()
+database.create()
+
+class ThreadWSBS(threading.Thread):
+    """Threaded Url Grab"""
+    def __init__(self, queue):
+        threading.Thread.__init__(self)
+        self.queue = queue
+
+    def run(self):
+        while True:
+            #grabs host from queue
+            php_file = self.queue.get()
+
+            wsb(php_file)
+
+            #signals to queue job is done
+            self.queue.task_done()
+
+def main():
     
-    irc_bot = bot.Trojan_Horse()
-    database.create()
+    #spawn a pool of threads, and pass them queue instance 
+    for i in range(5):
+        t = ThreadWSBS(queue)
+        t.setDaemon(True)
+        t.start()
+
+    #populate queue with data
+    for file in file_list:
+        queue.put(file)
     
-    file_list = listdir("file/")
-    #file_list = ["03ca9d71a172c71984f09b8c2f382412",]
-    for php_file in file_list:
-        report = phpsandbox.to_sandbox(php_file)
-        HOST, PORT, CHAN, NICK, USER = result.parse(report)
-        if HOST != "":
-            print HOST, PORT, CHAN, NICK, USER
-            if len(CHAN) < 1:
-                print "no channel found, searching..."
-                CHAN = set(chan.search(php_file))
-                print CHAN
-            database.insert(HOST, PORT, CHAN, NICK, USER)
+    #wait on the queue until everything has been processed
+    queue.join()
+
+def wsb(php_file):
+    
+    report = phpsandbox.to_sandbox(php_file)
+    HOST, PORT, CHAN, NICK, USER = result.parse(report)
+    if HOST != "":
+        if len(CHAN) < 1:
+            print "no channel found, searching..."
+            CHAN = set(chan.search(php_file))
+            print CHAN
+        database.insert(HOST, PORT, CHAN, NICK, USER)
+        
+def spy():
     for server in database.select_servers():
         print "Connecting to %s" % server[1]
         irc_bot.connect(server)
 
 if __name__ == "__main__":
-    wsbs()
+    main()
