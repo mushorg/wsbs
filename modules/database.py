@@ -37,8 +37,11 @@ def select_servers():
     db = sqlite3.connect('db/sqlite.db')
     cursor = db.cursor()
     cursor.execute("SELECT * FROM CnC")
-    for server in cursor:
-        CnC_SERVERS.append(server)
+    try:
+        for server in cursor:
+            CnC_SERVERS.append(server)
+    except:
+        pass
     db.close()
     return CnC_SERVERS
 
@@ -51,6 +54,7 @@ def insert_names(ID, new_names):
     db_names = cursor.fetchall()[0][0]
     if  db_names == "":
         for name in new_names:
+            name = name.encode('utf-8') 
             NAMES += name + "," 
     else:
         NAMES = db_names
@@ -66,12 +70,15 @@ def insert_names(ID, new_names):
 
 
 def show():
-    db = sqlite3.connect('../db/sqlite.db')
+    db = sqlite3.connect('db/sqlite.db')
     cursor = db.cursor()
     cursor.execute("SELECT * FROM CnC")
-    for row in cursor:
-        print row
+    try:
+        for row in cursor:
+            print row
+    except:
+        pass
     db.commit()
     db.close()
 
-show()
+#show()
