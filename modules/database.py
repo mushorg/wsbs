@@ -84,12 +84,7 @@ def show():
     db = sqlite3.connect('db/sqlite.db')
     cursor = db.cursor()
     cursor.execute("SELECT * FROM CnC")
-    try:
-        for row in cursor:
-            print row
-    except:
-        pass
+    for row in cursor:
+        print row
     db.commit()
     db.close()
-
-#show()
