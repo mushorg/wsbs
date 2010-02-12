@@ -57,6 +57,7 @@ def wsb(php_file):
                     CHAN = set(chan.search(php_file))
                     print CHAN
                 database.insert(HOST, PORT, CHAN, NICK, USER, php_file)
+            return
         else:
             return
         

@@ -31,7 +31,6 @@ def insert(HOST, PORT, CHAN, NICK, USER, FILENAME):
     for channel in CHAN:
         CHAN_string += channel + ","
     CHAN = CHAN_string
-    print "insert: " + CHAN 
     db = sqlite3.connect('db/sqlite.db')
     cursor = db.cursor()
     sql1 = "SELECT id FROM CnC WHERE host = ? AND channel LIKE ?"
