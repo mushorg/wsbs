@@ -23,6 +23,7 @@ def wsbs():
         report = phpsandbox.to_sandbox(php_file)
         HOST, PORT, CHAN, NICK, USER = result.parse(report)
         if HOST != "":
+            print HOST, PORT, CHAN, NICK, USER
             if len(CHAN) < 1:
                 print "no channel found, searching..."
                 CHAN = set(chan.search(php_file))
