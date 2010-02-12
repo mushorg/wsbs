@@ -6,6 +6,7 @@ import Queue
 import threading
 import sys
 import time
+import re
 
 sys.path.append("modules")
 
@@ -42,20 +43,22 @@ class ThreadWSBS(threading.Thread):
             self.queue.task_done()
 
 def wsb(php_file):
-    
-    file = open("file/" + php_file, 'r')
-    if "fsockopen" in file.readlines():
-        sandbox_report = phpsandbox.to_sandbox(php_file)
-        HOST, PORT, CHAN, NICK, USER = result.parse(sandbox_report)
-        if HOST != "":
-            print HOST, PORT, CHAN, NICK, USER
-            if len(CHAN) < 1:
-                print "no channel found, searching..."
-                CHAN = set(chan.search(php_file))
-                print CHAN
-            database.insert(HOST, PORT, CHAN, NICK, USER, php_file)
-    else:
+    if php_file == ".svn":
         return
+    file = open("file/" + php_file, 'r')
+    for line in file.readlines():
+        if re.search("fsockopen", line):
+            sandbox_report = phpsandbox.to_sandbox(php_file)
+            HOST, PORT, CHAN, NICK, USER = result.parse(sandbox_report)
+            if HOST != "":
+                print HOST, PORT, CHAN, NICK, USER
+                if len(CHAN) < 1:
+                    print "no channel found, searching..."
+                    CHAN = set(chan.search(php_file))
+                    print CHAN
+                database.insert(HOST, PORT, CHAN, NICK, USER, php_file)
+        else:
+            return
         
 def spy():
     for server in database.select_servers():
@@ -65,7 +68,7 @@ def spy():
 def main():
     
     #spawn a pool of threads, and pass them queue instance 
-    for i in range(5):
+    for i in range(10):
         t = ThreadWSBS(queue)
         t.setDaemon(True)
         t.start()
