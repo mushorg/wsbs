@@ -15,7 +15,7 @@ def search(php_file):
         file = file.split("\n")
     for line in file:
         if re.search("=\"#", line):
-            chan = line.partition("\"")[2].partition("\"")[0]
+            chan = line.partition("\"")[2].partition("\"")[0].strip()
             if chan == "#" or chan == "#e0e0e0":
                 continue
             elif chan not in CHAN:

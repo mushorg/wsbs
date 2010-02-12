@@ -10,13 +10,8 @@ import time
 import database
 
 class Trojan_Horse():
-    '''
-    classdocs
-    '''
+ 
     def __init__(self):
-        '''
-        Constructor
-        '''
         pass
     
     def connect(self, server):
@@ -71,7 +66,7 @@ class Trojan_Horse():
                     if line[1] == "001":
                         try:
                             for channel in CHAN.split(","):
-                                if channel != "":
+                                if channel != "" and channel != "#":
                                     s.send("JOIN %s\r\n" % channel)
                                     print "joining %s" % channel
                         except:

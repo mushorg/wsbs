@@ -20,7 +20,9 @@ def parse(report):
             CnC_PORT = line.rpartition("port=")[2].partition(",")[0]
         #if "<fwrite>" in line and "JOIN" in line:
         if "JOIN" in line:
-            CnC_CHANNEL.append("#" + line.partition("#")[2].partition("\n")[0].strip())
+            channel = "#" + line.partition("#")[2].partition("\n")[0].strip()
+            if channel not in CnC_CHANNEL and channel != "#":
+                CnC_CHANNEL.append(channel)
         if "NICK" in line:
             CnC_NICK = line.partition("NICK")[2].partition("\n")[0].strip()
         if "USER" in line:
