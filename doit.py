@@ -23,7 +23,7 @@ irc_bot = bot.Trojan_Horse()
 database.create()
 
 class ThreadWSBS(threading.Thread):
-    """Threaded Url Grab"""
+    """Threaded WSBS"""
     def __init__(self, queue):
         threading.Thread.__init__(self)
         self.queue = queue
@@ -37,6 +37,23 @@ class ThreadWSBS(threading.Thread):
 
             #signals to queue job is done
             self.queue.task_done()
+
+def wsb(php_file):
+    
+    report = phpsandbox.to_sandbox(php_file)
+    HOST, PORT, CHAN, NICK, USER = result.parse(report)
+    if HOST != "":
+        print HOST, PORT, CHAN, NICK, USER
+        if len(CHAN) < 1:
+            print "no channel found, searching..."
+            CHAN = set(chan.search(php_file))
+            print CHAN
+        database.insert(HOST, PORT, CHAN, NICK, USER)
+        
+def spy():
+    for server in database.select_servers():
+        print "Connecting to %s" % server[1]
+        irc_bot.connect(server)
 
 def main():
     
@@ -52,22 +69,6 @@ def main():
     
     #wait on the queue until everything has been processed
     queue.join()
-
-def wsb(php_file):
-    
-    report = phpsandbox.to_sandbox(php_file)
-    HOST, PORT, CHAN, NICK, USER = result.parse(report)
-    if HOST != "":
-        if len(CHAN) < 1:
-            print "no channel found, searching..."
-            CHAN = set(chan.search(php_file))
-            print CHAN
-        database.insert(HOST, PORT, CHAN, NICK, USER)
-        
-def spy():
-    for server in database.select_servers():
-        print "Connecting to %s" % server[1]
-        irc_bot.connect(server)
 
 if __name__ == "__main__":
     main()
