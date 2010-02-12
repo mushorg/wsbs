@@ -9,11 +9,23 @@ import sqlite3
 def create():
     db = sqlite3.connect('db/sqlite.db')
     cursor = db.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS CnC(id integer primary key, host text, port integer, channel text, nick text, user text, names text)")
+    cursor.execute("CREATE TABLE IF NOT EXISTS CnC(id integer primary key, host text, port integer, channel text, nick text, user text, names text, filename text)")
+    db.commit()
+    db.close()
+    
+def check_existence(FILENAME):
+    db = sqlite3.connect('db/sqlite.db')
+    cursor = db.cursor()
+    sql1 = "SELECT id FROM CnC WHERE filename = ?"
+    cursor.execute(sql1, (FILENAME,))
+    if len(cursor.fetchall()) > 0:
+        return True
+    else:
+        return False
     db.commit()
     db.close()
 
-def insert(HOST, PORT, CHAN, NICK, USER):
+def insert(HOST, PORT, CHAN, NICK, USER, FILENAME):
     NAMES = ""
     CHAN_string = ""
     for channel in CHAN:
@@ -27,8 +39,8 @@ def insert(HOST, PORT, CHAN, NICK, USER):
     if len(cursor.fetchall()) > 0:
         print "Already in database"
     else:
-        sql2 = "INSERT INTO CnC values(NULL, ?, ?, ?, ?, ?, ?)"
-        cursor.execute(sql2, (HOST, PORT, CHAN, NICK, USER, NAMES))
+        sql2 = "INSERT INTO CnC values(NULL, ?, ?, ?, ?, ?, ?, ?)"
+        cursor.execute(sql2, (HOST, PORT, CHAN, NICK, USER, NAMES, FILENAME))
     db.commit()
     db.close()
     
