@@ -1,9 +1,3 @@
-'''
-Created on 29.01.2010
-
-@author: Lukas
-'''
-
 import sqlite3
 
 def create():
@@ -31,6 +25,7 @@ def insert(HOST, PORT, CHAN, NICK, USER, FILENAME):
     for channel in CHAN:
         CHAN_string += channel + ","
     CHAN = CHAN_string
+    USER = USER.encode('utf-8')
     db = sqlite3.connect('db/sqlite.db')
     cursor = db.cursor()
     sql1 = "SELECT id FROM CnC WHERE host = ? AND channel LIKE ?"
@@ -65,7 +60,7 @@ def insert_names(ID, new_names):
     db_names = cursor.fetchall()[0][0]
     if  db_names == "":
         for name in new_names:
-            name = name.encode('utf-8') 
+            name = name.encode('utf-8')
             NAMES += name + "," 
     else:
         NAMES = db_names
