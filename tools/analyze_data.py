@@ -1,3 +1,5 @@
+# All rights Glastopf Project and Lukas Rist
+
 import sqlite3
 
 
