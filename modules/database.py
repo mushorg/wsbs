@@ -10,7 +10,8 @@ class MySQLDB():
         self.db = sqlite3.connect('db/sqlite.db')
         self.cursor = self.db.cursor()
         self.cursor.execute("CREATE TABLE IF NOT EXISTS CnC(id integer primary key, host text, port integer, channel text, nick text, user text, names text, filename text)")
-        self.close_db()
+        self.db.commit()
+        self.db.close()
         
     def check_existence(self, FILENAME):
         self.db = sqlite3.connect('db/sqlite.db')
@@ -21,7 +22,8 @@ class MySQLDB():
             return True
         else:
             return False
-        self.close_db()
+        self.db.commit()
+        self.db.close()
     
     def insert(self, HOST, PORT, CHAN, NICK, USER, NAMES, FILENAME):
         self.db = sqlite3.connect('db/sqlite.db')
@@ -62,7 +64,8 @@ class MySQLDB():
         else:
             sql3 = "INSERT INTO CnC values(NULL, ?, ?, ?, ?, ?, ?, ?)"
             self.cursor.execute(sql3, (HOST, PORT, CHAN, NICK, USER, NAMES, FILENAME))
-        self.close_db()
+        self.db.commit()
+        self.db.close()
     
     def show(self):
         self.db = sqlite3.connect('db/sqlite.db')
@@ -70,11 +73,8 @@ class MySQLDB():
         self.cursor.execute("SELECT * FROM CnC")
         for row in self.cursor:
             print row
-        self.close_db()
-        
-    def close_db(self):
         self.db.commit()
         self.db.close()
         
-mysql_database = MySQLDB()
-mysql_database.show()
+#mysql_database = MySQLDB()
+#mysql_database.show()
