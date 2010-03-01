@@ -73,9 +73,8 @@ class MySQLDB():
         self.close_db()
         
     def close_db(self):
-        self.db = sqlite3.connect('db/sqlite.db')
         self.db.commit()
         self.db.close()
         
-# mysql_database = MySQLDB()
-# mysql_database.show()
+mysql_database = MySQLDB()
+mysql_database.show()
