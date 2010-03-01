@@ -80,39 +80,38 @@ def to_sandbox(php_file = ""):
     password = '4ku4nakm3s14'
     scheme = "Basic"
     realm = "Application"
-    xml_output = False
+    xml_output = True
     
     req = urllib2.Request(url)
     base64string = base64.encodestring('%s:%s' % (username, password))[:-1]
     authheader =  "Basic %s" % base64string
     req.add_header("Authorization", authheader)
-            
+    # Connect to the sandbox to get the cookie and authenticity token
     try:
         handle = urllib2.urlopen(req)
     except IOError, e:
-        # here we shouldn't fail if the username/password is right
-        print "It looks like the username or password is wrong."
-        sys.exit(1)
+        print "Error while connecting to the sandbox: %s" % e
+        return
     
     # Extract the cookie
     cookie = str(handle.info()).partition("Set-Cookie: ")[2].partition("; path")[0]
     if cookie == "":
         print "No cookie found."
-    
+    # Get the authenticity token
     for line in handle.readlines():
         if "authenticity_token" in line:
             token = line.partition("value=\"")[2].partition("\"")[0]
     if not token:
         print "no token found!"
-        sys.exit(1)
-    
+        return
+    # Generate the form
     form = MultiPartForm()
     form.add_field('authenticity_token', token)
     if xml_output == True:
         form.add_field('displayFormat[]', 'xml')
     form.add_file('mohon[bin_data]', str("file/" + php_file), fileHandle=open("file/" + php_file, 'r'))
     body = str(form)
-    
+    # Form the request
     request = urllib2.Request('https://blog.honeynet.org.my/pKaji/mohon/uploadFile')
     request.add_header('User-agent', 'Glastopf Web Honeypot Sensor')
     request.add_header('Content-type', form.get_content_type())
@@ -129,16 +128,16 @@ def to_sandbox(php_file = ""):
     #print 'SERVER RESPONSE:'
     try:
         start_time = time.time()
-        out = urllib2.urlopen(request).readlines()
-        print "Parsed file %s returned from sandbox!" % php_file
+        out = urllib2.urlopen(request)
+        #print "Parsed file %s returned from sandbox!" % php_file
         
         time_difference = time.time() - start_time
-        print "Sandbox runtime = %d seconds" % int(time_difference)
+        #print "Sandbox runtime = %d seconds" % int(time_difference)
         return out
     
     except urllib2.HTTPError, e:
         #print e.read()
-        print e
-        return "error"
+        print "Sandbox response error: %s" % e
+        return
 
 

@@ -1,9 +1,3 @@
-'''
-Created on 29.01.2010
-
-@author: Lukas
-'''
-
 def parse(report):
     
     CnC_IP = ""

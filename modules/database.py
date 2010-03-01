@@ -1,85 +1,81 @@
 import sqlite3
+import types
 
-def create():
-    db = sqlite3.connect('db/sqlite.db')
-    cursor = db.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS CnC(id integer primary key, host text, port integer, channel text, nick text, user text, names text, filename text)")
-    db.commit()
-    db.close()
+class MySQLDB():
     
-def check_existence(FILENAME):
-    db = sqlite3.connect('db/sqlite.db')
-    cursor = db.cursor()
-    sql1 = "SELECT id FROM CnC WHERE filename = ?"
-    cursor.execute(sql1, (FILENAME,))
-    if len(cursor.fetchall()) > 0:
-        return True
-    else:
-        return False
-    db.commit()
-    db.close()
-
-def insert(HOST, PORT, CHAN, NICK, USER, FILENAME):
-    NAMES = ""
-    CHAN_string = ""
-    for channel in CHAN:
-        CHAN_string += channel + ","
-    CHAN = CHAN_string
-    USER = USER.encode('utf-8')
-    db = sqlite3.connect('db/sqlite.db')
-    cursor = db.cursor()
-    sql1 = "SELECT id FROM CnC WHERE host = ? AND channel LIKE ?"
-    cursor.execute(sql1, (HOST,CHAN))
-    if len(cursor.fetchall()) > 0:
-        print "Already in database"
-    else:
-        sql2 = "INSERT INTO CnC values(NULL, ?, ?, ?, ?, ?, ?, ?)"
-        cursor.execute(sql2, (HOST, PORT, CHAN, NICK, USER, NAMES, FILENAME))
-    db.commit()
-    db.close()
-    
-def select_servers():
-    CnC_SERVERS = []
-    db = sqlite3.connect('db/sqlite.db')
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM CnC")
-    try:
-        for server in cursor:
-            CnC_SERVERS.append(server)
-    except:
+    def __init__(self):
         pass
-    db.close()
-    return CnC_SERVERS
-
-def insert_names(ID, new_names):
-    NAMES = ""
-    db = sqlite3.connect('db/sqlite.db')
-    cursor = db.cursor()
-    sql1 = "SELECT names FROM CnC WHERE id = ?"
-    cursor.execute(sql1, (ID,))
-    db_names = cursor.fetchall()[0][0]
-    if  db_names == "":
-        for name in new_names:
-            name = name.encode('utf-8')
-            NAMES += name + "," 
-    else:
-        NAMES = db_names
-        splitted_db_names = db_names.split(",")
-        for name in new_names:
-            if name not in splitted_db_names:
-                NAMES += name + ","
-    sql2 = "UPDATE CnC SET names = ? WHERE id = ?"
-    cursor.execute(sql2, (NAMES,ID,))
-    db.commit()
-    db.close()
-    show()
-
-
-def show():
-    db = sqlite3.connect('db/sqlite.db')
-    cursor = db.cursor()
-    cursor.execute("SELECT * FROM CnC")
-    for row in cursor:
-        print row
-    db.commit()
-    db.close()
+    
+    def create(self):
+        self.db = sqlite3.connect('db/sqlite.db')
+        self.cursor = self.db.cursor()
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS CnC(id integer primary key, host text, port integer, channel text, nick text, user text, names text, filename text)")
+        self.close_db()
+        
+    def check_existence(self, FILENAME):
+        self.db = sqlite3.connect('db/sqlite.db')
+        self.cursor = self.db.cursor()
+        sql1 = "SELECT id FROM CnC WHERE filename = ?"
+        self.cursor.execute(sql1, (FILENAME,))
+        if len(self.cursor.fetchall()) > 0:
+            return True
+        else:
+            return False
+        self.close_db()
+    
+    def insert(self, HOST, PORT, CHAN, NICK, USER, NAMES, FILENAME):
+        self.db = sqlite3.connect('db/sqlite.db')
+        self.cursor = self.db.cursor()
+        CHAN_string = ""
+        for channel in CHAN:
+            CHAN_string += channel + ","
+        CHAN = CHAN_string
+        USER = USER.encode('utf-8')
+        if len(NAMES) > 1:
+            NAMES_string = ""
+            for name in NAMES:
+                NAMES_string += name + ","
+            NAMES = NAMES_string
+        else:
+            NAMES = ""
+        sql1 = "SELECT id, names FROM CnC WHERE host = ? AND channel LIKE ?"
+        self.cursor.execute(sql1, (HOST,CHAN))
+        if len(self.cursor.fetchall()) > 0:
+            print "Already in database"
+            if NAMES != "":
+                NAMES_old = self.cursor.fetchone()[1].split(",")
+                NAMES_new = NAMES.split(",")
+                NAMES = NAMES_old
+                print "Old names: ", NAMES
+                for name in NAMES_new:
+                    if name not in NAMES_old:
+                        NAMES.append(name)
+                NAMES_string = ""
+                for name in NAMES:
+                    NAMES_string += name + ","
+                NAMES = NAMES_string
+                print "New names: ", NAMES
+                ID = self.cursor.fetchone()[0]
+                print "ID = ", ID
+                sql2 = "UPDATE CnC SET names = ? WHERE id = ?"
+                self.cursor.execute(sql2, (NAMES,ID))
+        else:
+            sql3 = "INSERT INTO CnC values(NULL, ?, ?, ?, ?, ?, ?, ?)"
+            self.cursor.execute(sql3, (HOST, PORT, CHAN, NICK, USER, NAMES, FILENAME))
+        self.close_db()
+    
+    def show(self):
+        self.db = sqlite3.connect('db/sqlite.db')
+        self.cursor = self.db.cursor()
+        self.cursor.execute("SELECT * FROM CnC")
+        for row in self.cursor:
+            print row
+        self.close_db()
+        
+    def close_db(self):
+        self.db = sqlite3.connect('db/sqlite.db')
+        self.db.commit()
+        self.db.close()
+        
+# mysql_database = MySQLDB()
+# mysql_database.show()
