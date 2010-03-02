@@ -1,5 +1,4 @@
 import sqlite3
-import types
 
 class MySQLDB():
     
@@ -42,10 +41,11 @@ class MySQLDB():
             NAMES = ""
         sql1 = "SELECT id, names FROM CnC WHERE host = ? AND channel LIKE ?"
         self.cursor.execute(sql1, (HOST,CHAN))
-        if len(self.cursor.fetchall()) > 0:
+        found_entries = self.cursor.fetchall()
+        if len(found_entries) > 0:
             print "Already in database"
             if NAMES != "":
-                NAMES_old = self.cursor.fetchone()[1].split(",")
+                NAMES_old = found_entries[0][1].split(",")
                 NAMES_new = NAMES.split(",")
                 NAMES = NAMES_old
                 print "Old names: ", NAMES
@@ -57,7 +57,7 @@ class MySQLDB():
                     NAMES_string += name + ","
                 NAMES = NAMES_string
                 print "New names: ", NAMES
-                ID = self.cursor.fetchone()[0]
+                ID = found_entries[0][0]
                 print "ID = ", ID
                 sql2 = "UPDATE CnC SET names = ? WHERE id = ?"
                 self.cursor.execute(sql2, (NAMES,ID))
