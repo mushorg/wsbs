@@ -94,8 +94,8 @@ class Trojan_Horse():
             except socket.error, e:
                 print "Error: %s while connecting to the IRC server!" % e[1]
                 return NAMES
-            except e:
-                print "Unknown error: %s" % e
+            except:
+                print "Unknown error"
                 return NAMES
         return NAMES
     

@@ -75,6 +75,7 @@ class ThreadWesBos(threading.Thread):
                         # write all we found into the sqlite database and get the ID
                         HOST, PORT, CHAN, NICK, USER = server
                         mysql_database.insert(HOST, PORT, CHAN, NICK, USER, NAMES, php_file)
+                        print "%s files left in queue" % self.file_queue.qsize()
                 # file successful processed
                 return
             else:

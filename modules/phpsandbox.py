@@ -139,5 +139,9 @@ def to_sandbox(php_file = ""):
         #print e.read()
         print "Sandbox response error: %s" % e
         return
+    except urllib2.URLError, e:
+        #print e.read()
+        print "Sandbox response error: %s" % e
+        return
 
 

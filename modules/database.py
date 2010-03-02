@@ -6,27 +6,27 @@ class MySQLDB():
         pass
     
     def create(self):
-        self.db = sqlite3.connect('db/sqlite.db')
-        self.cursor = self.db.cursor()
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS CnC(id integer primary key, host text, port integer, channel text, nick text, user text, names text, filename text)")
-        self.db.commit()
-        self.db.close()
+        db = sqlite3.connect('db/sqlite.db')
+        cursor = db.cursor()
+        cursor.execute("CREATE TABLE IF NOT EXISTS CnC(id integer primary key, host text, port integer, channel text, nick text, user text, names text, filename text)")
+        db.commit()
+        db.close()
         
     def check_existence(self, FILENAME):
-        self.db = sqlite3.connect('db/sqlite.db')
-        self.cursor = self.db.cursor()
+        db = sqlite3.connect('db/sqlite.db')
+        cursor = db.cursor()
         sql1 = "SELECT id FROM CnC WHERE filename = ?"
-        self.cursor.execute(sql1, (FILENAME,))
-        if len(self.cursor.fetchall()) > 0:
+        cursor.execute(sql1, (FILENAME,))
+        if len(cursor.fetchall()) > 0:
             return True
         else:
             return False
-        self.db.commit()
-        self.db.close()
+        db.commit()
+        db.close()
     
     def insert(self, HOST, PORT, CHAN, NICK, USER, NAMES, FILENAME):
-        self.db = sqlite3.connect('db/sqlite.db')
-        self.cursor = self.db.cursor()
+        db = sqlite3.connect('db/sqlite.db')
+        cursor = db.cursor()
         CHAN_string = ""
         for channel in CHAN:
             CHAN_string += channel + ","
@@ -40,41 +40,41 @@ class MySQLDB():
         else:
             NAMES = ""
         sql1 = "SELECT id, names FROM CnC WHERE host = ? AND channel LIKE ?"
-        self.cursor.execute(sql1, (HOST,CHAN))
-        found_entries = self.cursor.fetchall()
+        cursor.execute(sql1, (HOST,CHAN))
+        found_entries = cursor.fetchall()
         if len(found_entries) > 0:
             print "Already in database"
             if NAMES != "":
-                NAMES_old = found_entries[0][1].split(",")
                 NAMES_new = NAMES.split(",")
-                NAMES = NAMES_old
-                print "Old names: ", NAMES
+                if found_entries[0][1] != "":
+                    NAMES_old = found_entries[0][1].split(",")
+                    NAMES = NAMES_old
+                else:
+                    NAMES = []
                 for name in NAMES_new:
-                    if name not in NAMES_old:
+                    if name not in NAMES_old and name != "":
                         NAMES.append(name)
                 NAMES_string = ""
                 for name in NAMES:
                     NAMES_string += name + ","
                 NAMES = NAMES_string
-                print "New names: ", NAMES
                 ID = found_entries[0][0]
-                print "ID = ", ID
                 sql2 = "UPDATE CnC SET names = ? WHERE id = ?"
-                self.cursor.execute(sql2, (NAMES,ID))
+                cursor.execute(sql2, (NAMES,ID))
         else:
             sql3 = "INSERT INTO CnC values(NULL, ?, ?, ?, ?, ?, ?, ?)"
-            self.cursor.execute(sql3, (HOST, PORT, CHAN, NICK, USER, NAMES, FILENAME))
-        self.db.commit()
-        self.db.close()
+            cursor.execute(sql3, (HOST, PORT, CHAN, NICK, USER, NAMES, FILENAME))
+        db.commit()
+        db.close()
     
     def show(self):
-        self.db = sqlite3.connect('db/sqlite.db')
-        self.cursor = self.db.cursor()
-        self.cursor.execute("SELECT * FROM CnC")
-        for row in self.cursor:
+        db = sqlite3.connect('db/sqlite.db')
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM CnC")
+        for row in cursor:
             print row
-        self.db.commit()
-        self.db.close()
+        db.commit()
+        db.close()
         
 #mysql_database = MySQLDB()
 #mysql_database.show()
