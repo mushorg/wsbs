@@ -51,6 +51,7 @@ class MySQLDB():
                     NAMES = NAMES_old
                 else:
                     NAMES = []
+                    NAMES_old = []
                 for name in NAMES_new:
                     if name not in NAMES_old and name != "":
                         NAMES.append(name)
@@ -75,6 +76,3 @@ class MySQLDB():
             print row
         db.commit()
         db.close()
-        
-#mysql_database = MySQLDB()
-#mysql_database.show()
