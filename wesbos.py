@@ -9,15 +9,14 @@ import Queue
 import threading
 import sys
 import time
-import re
 
 sys.path.append("modules")
 
-import phpsandbox
-import result
-import bot
-import database
-import parse_xml
+import modules.phpsandbox as phpsandbox
+import modules.result as result
+import modules.bot as bot
+import modules.database as database
+import modules.parse_xml as parse_xml
 
 print "Web Server Botnet Researcher started..."
 
