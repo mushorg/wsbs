@@ -1,8 +1,6 @@
 import socket
 import time
 
-import database
-
 class Trojan_Horse():
  
     def __init__(self):

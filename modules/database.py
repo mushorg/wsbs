@@ -1,6 +1,15 @@
 import sqlite3
 
-class MySQLDB():
+class CredentialsDB(object):
+    
+    def __init__(self):
+        pass
+    
+    def get_credentials(self):
+        pass
+    
+
+class BotnetDB(object):
     
     def __init__(self):
         pass
