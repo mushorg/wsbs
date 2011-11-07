@@ -2,7 +2,7 @@ import sqlite3
 
 class Botnet(object):
     
-    def __init__(self, script):
+    def __init__(self):
         self.file_name = ''
         self.file_md5 = ''
         self.analysis_date = ''
@@ -11,7 +11,7 @@ class Botnet(object):
         self.irc_nick = ''
         self.irc_user = ''
         self.irc_mode = ''
-        self.irc_channel = []
+        self.irc_channel = ''
         self.irc_nickserv = ''
         self.irc_notice = []
         self.irc_privmsg = []
@@ -27,10 +27,10 @@ class SandboxDB(object):
         cursor.execute("""SELECT * FROM botnets""")
         for res in cursor.fetchall():
             botnet = Botnet()
-            id, botnet.analysis_date, botnet.file_md5, botnet.file_name = res[0:3]
-            botnet.irc_addr, botnet.irc_server_pwd, botnet.irc_nick = res[4:6]
-            botnet.irc_user, botnet.irc_mode, botnet.irc_channel = res[7:9]
-            botnet.irc_nickserv, botnet.irc_notice, botnet.irc_privmsg = res[10:12]
+            id, botnet.analysis_date, botnet.file_md5, botnet.file_name = res[0:4]
+            botnet.irc_addr, botnet.irc_server_pwd, botnet.irc_nick = res[4:7]
+            botnet.irc_user, botnet.irc_mode, botnet.irc_channel = res[7:10]
+            botnet.irc_nickserv, botnet.irc_notice, botnet.irc_privmsg = res[10:]
             botnet_list.append(botnet)
         return botnet_list
     
@@ -61,7 +61,7 @@ class BotnetDB(object):
             return False
         db.close()
     
-    def insert(self, HOST, PORT, CHAN, NICK, USER, NAMES, FILENAME):
+    def insert(self, botnet):
         db = sqlite3.connect('db/sqlite.db')
         cursor = db.cursor()
         CHAN_string = ''

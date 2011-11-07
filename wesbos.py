@@ -41,7 +41,7 @@ class WesBos(threading.Thread):
         NAMES = self.irc_bot.connect(botnet)
         if len(NAMES) > 0:
             print "We found %s drones in a botnet!" % len(NAMES)
-        self.botnet_db.insert(botnet)
+        #self.botnet_db.insert(botnet)
         print "%s files left in queue" % self.file_queue.qsize()
         return
 
