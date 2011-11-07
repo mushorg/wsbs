@@ -1,19 +1,26 @@
-"""All rights by Lukas Rist (glaslos@gmail.com)"""
+# Copyright (C) 2011  Lukas Rist
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import Queue
 import threading
-import sys
-
-sys.path.append("modules")
 
 import modules.bot as bot
 import modules.database as database
 
-print "Web Server Botnet Researcher started..."
-
-class ThreadWesBos(threading.Thread):
-    """Class to analyze PHP files using
-    the pKaji PHP sandbox and process the results."""
+class WesBos(threading.Thread):
     
     def __init__(self, file_queue):
         threading.Thread.__init__(self)
@@ -24,41 +31,31 @@ class ThreadWesBos(threading.Thread):
     def run(self):
         while True:
             # grabs php file from queue
-            php_file = self.file_queue.get()
+            botnet = self.file_queue.get()
             # process file
-            self.wsb(php_file)
+            self.wsb(botnet)
             # signals to queue job is done
             self.file_queue.task_done()
             
     def wsb(self, botnet):
-        NAMES = self.spy(botnet)
+        NAMES = self.irc_bot.connect(botnet)
         if len(NAMES) > 0:
             print "We found %s drones in a botnet!" % len(NAMES)
-        # write all we found into the sqlite database and get the ID
-        self.mysql_database.insert(botnet)
+        self.botnet_db.insert(botnet)
         print "%s files left in queue" % self.file_queue.qsize()
         return
-    
-    def spy(self, server):
-        """"Function to handle the irc spies"""
-        print "Connecting to %s" % server[0]
-        NAMES = self.irc_bot.connect(server)
-        return NAMES
 
 def main():
-    """Function spawning the threads, managing the queue and 
-    waiting for all threads to finish"""
-    
     file_queue = Queue.Queue()
-    
     # spawn a pool of threads, and pass them the queue instances 
     for i in range(10):
-        t = ThreadWesBos(file_queue)
+        t = WesBos(file_queue)
         t.setDaemon(True)
         t.start()
     # populate the file queue with data
-    credentials_db = database.CredentialsDB()
-    botnet_list = credentials_db.get_credentials() 
+    sandbox_db = database.SandboxDB()
+    botnet_list = sandbox_db.get_credentials()
+    sandbox_db.close()
     for botnet in botnet_list:
         file_queue.put(botnet)
     # wait on the queue until everything has been processed
