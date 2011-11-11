@@ -22,34 +22,34 @@ import modules.database as database
 
 class WesBos(threading.Thread):
     
-    def __init__(self, file_queue):
+    def __init__(self, botnet_queue):
         threading.Thread.__init__(self)
-        self.file_queue = file_queue
+        self.botnet_queue = botnet_queue
         self.irc_bot = bot.Trojan_Horse()
         self.botnet_db = database.BotnetDB()
 
     def run(self):
         while True:
             # grabs php file from queue
-            botnet = self.file_queue.get()
+            botnet = self.botnet_queue.get()
             # process file
             self.wsb(botnet)
             # signals to queue job is done
-            self.file_queue.task_done()
+            self.botnet_queue.task_done()
             
     def wsb(self, botnet):
         NAMES = self.irc_bot.connect(botnet)
         if len(NAMES) > 0:
             print "We found %s drones in a botnet!" % len(NAMES)
         #self.botnet_db.insert(botnet)
-        print "%s files left in queue" % self.file_queue.qsize()
+        print "%s files left in queue" % self.botnet_queue.qsize()
         return
 
 def main():
-    file_queue = Queue.Queue()
+    botnet_queue = Queue.Queue()
     # spawn a pool of threads, and pass them the queue instances 
     for i in range(10):
-        t = WesBos(file_queue)
+        t = WesBos(botnet_queue)
         t.setDaemon(True)
         t.start()
     # populate the file queue with data
@@ -57,9 +57,9 @@ def main():
     botnet_list = sandbox_db.get_credentials()
     sandbox_db.close()
     for botnet in botnet_list:
-        file_queue.put(botnet)
+        botnet_queue.put(botnet)
     # wait on the queue until everything has been processed
-    file_queue.join()
+    botnet_queue.join()
     
 if __name__ == "__main__":
     main()
