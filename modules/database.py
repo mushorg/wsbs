@@ -112,14 +112,55 @@ class BotnetDB(object):
         for row in cursor:
             print row
         db.close()
-        
+
 class MessageDB():
-    
-    def __init__(self, botnet_id):
-        self.botnet_id = botnet_id
-    
-    def insert_message(self, msg):
-        #connect to botnet db 
-        #write msg to botnet id table
-        #commit data
-        #close connection
+
+    def __init__(self):
+        self.conn = sqlite3.connect('db/botnet_msg.db')
+        pass
+
+    def createtable(self, botnetID):
+        pass
+
+    def insertmessage(self, botnetID, msg):
+        pass
+
+    def show(self, botnetID):
+        pass
+
+class BotnetInfoDB():
+
+    def __init__(self):
+        self.conn = sqlite3.connect('db/botnet_info.db')
+        self.create()
+
+    def create(self):
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute("CREATE TABLE IF NOT EXISTS botnet_info (id INTEGER PRIMARY KEY, serverinfo TEXT, channel TEXT, sandboxid TEXT, lasttime TEXT)")
+        except sqlite3.OperationalError, e:
+            print "Insert into database Error:", e
+        except sqlite3.ProgrammingError, e:
+            print "Insert into database Error:", e
+        cursor.close()
+
+    def insert(self, serverinfo, channel, sandboxid, time):
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute("INSERT INTO botnet_info VALUES(?, ?, ?, ?, ?)", (None, serverinfo, channel, sandboxid, time))
+        except sqlite3.OperationalError, e:
+            print "Insert into database Error:", e
+        except sqlite3.ProgrammingError, e:
+            print "Insert into database Error:", e
+        cursor.close()
+
+    def selectbyid(self, sandboxid):
+        cursor = self.conn.cursor()
+        try:
+            info = cursor.execute("SELECT * FROM botnet_info WHERE sandboxid = ?", (sandboxid,))
+            return info
+        except sqlite3.OperationalError, e:
+            print "Insert into database Error:", e
+        except sqlite3.ProgrammingError, e:
+            print "Insert into database Error:", e
+        cursor.close()
