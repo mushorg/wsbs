@@ -112,3 +112,14 @@ class BotnetDB(object):
         for row in cursor:
             print row
         db.close()
+        
+class MessageDB():
+    
+    def __init__(self, botnet_id):
+        self.botnet_id = botnet_id
+    
+    def insert_message(self, msg):
+        #connect to botnet db 
+        #write msg to botnet id table
+        #commit data
+        #close connection
