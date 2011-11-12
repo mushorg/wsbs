@@ -116,14 +116,34 @@ class BotnetDB(object):
 class MessageDB():
 
     def __init__(self):
-        self.conn = sqlite3.connect('db/botnet_msg.db')
-        pass
+        self.conn = sqlite3.connect('db/botnet_info_msg.db')
+        self.prefix = u"Botnet_"
 
     def createtable(self, botnetID):
-        pass
+        tablename = self.prefix + botnetID
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute("CREATE TABLE IF NOT EXISTS %s (id INTEGER PRIMARY KEY, rawmsg TEXT, timestamp TEXT)" % tablename)
+            self.conn.commit()
+        except sqlite3.OperationalError, e:
+            print "creating table error", e
+        except sqlite3.ProgrammingError, e:
+            print "creating table error", e
+        cursor.close()
 
-    def insertmessage(self, botnetID, msg):
-        pass
+    def insertmessage(self, botnetID, msg, time):
+        cursor = self.conn.cursor()
+        tname = self.prefix + botnetID
+        sql = "INSERT INTO %s VALUES(?, ?, ?)" % tname
+        try:
+            cursor.execute(sql, (None, msg, time))
+            self.conn.commit()
+        except sqlite3.OperationalError, e:
+            print "creating table error", e
+        except sqlite3.ProgrammingError, e:
+            print "creating table error", e
+        cursor.close()
+
 
     def show(self, botnetID):
         pass
@@ -131,17 +151,18 @@ class MessageDB():
 class BotnetInfoDB():
 
     def __init__(self):
-        self.conn = sqlite3.connect('db/botnet_info.db')
+        self.conn = sqlite3.connect('db/botnet_info_msg.db')
         self.create()
 
     def create(self):
         cursor = self.conn.cursor()
         try:
             cursor.execute("CREATE TABLE IF NOT EXISTS botnet_info (id INTEGER PRIMARY KEY, serverinfo TEXT, channel TEXT, sandboxid TEXT, lasttime TEXT)")
+            self.conn.commit()
         except sqlite3.OperationalError, e:
-            print "Insert into database Error:", e
+            print "Creating database Error:", e
         except sqlite3.ProgrammingError, e:
-            print "Insert into database Error:", e
+            print "Creating database Error:", e
         cursor.close()
 
     def insert(self, serverinfo, channel, sandboxid, time):
@@ -152,6 +173,7 @@ class BotnetInfoDB():
             print "Insert into database Error:", e
         except sqlite3.ProgrammingError, e:
             print "Insert into database Error:", e
+        self.conn.commit()
         cursor.close()
 
     def selectbyid(self, sandboxid):
@@ -160,7 +182,7 @@ class BotnetInfoDB():
             info = cursor.execute("SELECT * FROM botnet_info WHERE sandboxid = ?", (sandboxid,))
             return info
         except sqlite3.OperationalError, e:
-            print "Insert into database Error:", e
+            print "Select from database Error:", e
         except sqlite3.ProgrammingError, e:
-            print "Insert into database Error:", e
+            print "Select from database Error:", e
         cursor.close()
