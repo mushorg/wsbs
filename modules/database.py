@@ -150,11 +150,9 @@ class MessageDB():
         sql = "SELECT * FROM %s" % tablename
         reply = []
         try:
-            data = cursor.execute(sql)
-            for i in data:
-                reply.append(i)
+            data = cursor.execute(sql).fetchall()
             cursor.close()
-            return reply
+            return data
         except sqlite3.OperationalError, e:
             print "Selecting data from db Error", e
         except sqlite3.ProgrammingError, e:
@@ -195,8 +193,7 @@ class BotnetInfoDB():
     def selectbyid(self, sandboxid):
         cursor = self.conn.cursor()
         try:
-            info = cursor.execute("SELECT * FROM botnet_info WHERE sandboxid = ?", (sandboxid,))
-            reply = info.fetchone()[:]
+            reply = cursor.execute("SELECT * FROM botnet_info WHERE sandboxid == ? ORDER BY id", (sandboxid,)).fetchone()
             cursor.close()
             return reply
         except sqlite3.OperationalError, e:
