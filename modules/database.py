@@ -119,11 +119,11 @@ class MessageDB():
         self.conn = sqlite3.connect('db/botnet_info_msg.db')
         self.prefix = u"Botnet_"
 
-    def createtable(self, botnetID):
-        tablename = self.prefix + botnetID
+    def createtable(self, botnetID): # The botnetID should be int
+        tablename = self.prefix + str(botnetID)
         cursor = self.conn.cursor()
         try:
-            cursor.execute("CREATE TABLE IF NOT EXISTS %s (id INTEGER PRIMARY KEY, rawmsg TEXT, timestamp TEXT)" % tablename)
+            cursor.execute("CREATE TABLE IF NOT EXISTS %s (id INTEGER PRIMARY KEY, timestamp TEXT, rawmsg TEXT)" % tablename)
             self.conn.commit()
         except sqlite3.OperationalError, e:
             print "creating table error", e
@@ -131,12 +131,12 @@ class MessageDB():
             print "creating table error", e
         cursor.close()
 
-    def insertmessage(self, botnetID, msg, time):
+    def insert(self, botnetID, time, msg): # The botnetID should be int
         cursor = self.conn.cursor()
-        tname = self.prefix + botnetID
-        sql = "INSERT INTO %s VALUES(?, ?, ?)" % tname
+        tablename = self.prefix + str(botnetID)
+        sql = "INSERT INTO %s VALUES(?, ?, ?)" % tablename
         try:
-            cursor.execute(sql, (None, msg, time))
+            cursor.execute(sql, (None, time, msg))
             self.conn.commit()
         except sqlite3.OperationalError, e:
             print "creating table error", e
@@ -144,9 +144,25 @@ class MessageDB():
             print "creating table error", e
         cursor.close()
 
+    def showall(self, botnetID): # The botnetID should be int
+        cursor = self.conn.cursor()
+        tablename = self.prefix + str(botnetID)
+        sql = "SELECT * FROM %s" % tablename
+        reply = []
+        try:
+            data = cursor.execute(sql)
+            for i in data:
+                reply.append(i)
+            cursor.close()
+            return reply
+        except sqlite3.OperationalError, e:
+            print "Selecting data from db Error", e
+        except sqlite3.ProgrammingError, e:
+            print "Selecting data from db Error", e
 
-    def show(self, botnetID):
-        pass
+    def closehandle(self):
+        self.conn.commit()
+        self.conn.close()
 
 class BotnetInfoDB():
 
@@ -180,9 +196,15 @@ class BotnetInfoDB():
         cursor = self.conn.cursor()
         try:
             info = cursor.execute("SELECT * FROM botnet_info WHERE sandboxid = ?", (sandboxid,))
-            return info
+            reply = info.fetchone()[:]
+            cursor.close()
+            return reply
         except sqlite3.OperationalError, e:
             print "Select from database Error:", e
         except sqlite3.ProgrammingError, e:
             print "Select from database Error:", e
-        cursor.close()
+
+    def closehandle(self):
+        self.conn.commit()
+        self.conn.close()
+
