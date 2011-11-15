@@ -26,7 +26,6 @@ class WesBos(threading.Thread):
         threading.Thread.__init__(self)
         self.botnet_queue = botnet_queue
         self.irc_bot = bot.Trojan_Horse()
-        self.botnet_db = database.BotnetDB()
 
     def run(self):
         while True:
@@ -56,7 +55,14 @@ def main():
     sandbox_db = database.SandboxDB()
     botnet_list = sandbox_db.get_credentials()
     sandbox_db.close()
+    botnet_db = database.BotnetInfoDB()
     for botnet in botnet_list:
+        if botnet_db.selectbyid(botnet.sandbox_id) == None:
+            botnet_db.insert(botnet.irc_addr, channel, botnet.sandbox_id, time)
+            botnet_db.closehandle()
+        else:
+            # "UPDATE time VALUE ? WHERE botnetid == ?"
+            print "already known"
         botnet_queue.put(botnet)
     # wait on the queue until everything has been processed
     botnet_queue.join()
