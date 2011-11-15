@@ -63,7 +63,9 @@ def main():
         else:
             # "UPDATE time VALUE ? WHERE botnetid == ?"
             print "already known"
-        botnet_queue.put(botnet)
+        botnetdb_list = botnet_db.select_all()
+        for botnet in botnetdb_list:
+            botnet_queue.put(botnet)
     # wait on the queue until everything has been processed
     botnet_queue.join()
     

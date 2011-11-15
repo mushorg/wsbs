@@ -53,7 +53,7 @@ class Trojan_Horse():
                 readbuffer = temp.pop()
                 for line in temp:
                     line = line.rstrip()
-                    self.msg_db.insert_message(line)
+                    self.msg_db.insert(botnet_id, timestamp, line)
                     self.line = line.split()
                     # The IRC table tennis 
                     if(self.line[0]=="PING"):
