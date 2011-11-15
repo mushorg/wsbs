@@ -62,6 +62,7 @@ def main():
             botnet_db.closehandle()
         else:
             # "UPDATE time VALUE ? WHERE botnetid == ?"
+            botnet_db.UpdateTime(botnet) #by shian 20111115
             print "already known"
         botnetdb_list = botnet_db.select_all()
         for botnet in botnetdb_list:

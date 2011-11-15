@@ -130,3 +130,11 @@ class BotnetInfoDB():
         self.conn.commit()
         self.conn.close()
 
+
+    def UpdateTime(self,botnetID): #by shian 20111115
+        conn=sqlite3.connect('db/sandbox.db')
+        cursor=conn.cursor()
+        timestamptable = cursor.execute("""SELECT max(analysis_date) FROM botnets WHERE file_md5 == botnetID""")
+        cursor.execute("""UPDATE botnet_info SET analysis_date = timestamptable WHERE file_md5 == botnetID""")
+                
+            
