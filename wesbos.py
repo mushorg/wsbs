@@ -16,6 +16,7 @@
 
 import Queue
 import threading
+from datetime import datetime
 
 import modules.bot as bot
 import modules.database as database
@@ -53,19 +54,23 @@ def main():
         t.start()
     # populate the file queue with data
     sandbox_db = database.SandboxDB()
-    botnet_list = sandbox_db.get_credentials()
+    sandbox_list = sandbox_db.get_credentials()
     sandbox_db.close()
     botnet_db = database.BotnetInfoDB()
-    for botnet in botnet_list:
-        if botnet_db.selectbyid(botnet.sandbox_id) == None:
-            botnet_db.insert(botnet.irc_addr, channel, botnet.sandbox_id, time)
-            botnet_db.closehandle()
+    for botnet in sandbox_list:
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        duplicate_botnet_id = botnet_db.select_by_features(botnet.irc_addr, botnet.irc_channel)[0]
+        if not duplicate_botnet_id:
+            botnet_db.insert(botnet.irc_addr, botnet.irc_server_pwd, botnet.irc_nick, 
+                             botnet.irc_user, botnet.irc_channel, botnet.sandbox_id, 
+                             timestamp)
+            botnet_db.close_handle()
         else:
-            # "UPDATE time VALUE ? WHERE botnetid == ?"
-            botnet_db.UpdateTime(botnet) #by shian 20111115
+            botnet_db.update_time(botnet.analysis_date, duplicate_botnet_id) #by shian 20111115
+            botnet_db.close_handle()
             print "already known"
-        botnetdb_list = botnet_db.select_all()
-        for botnet in botnetdb_list:
+        botnet_list = botnet_db.select_all()
+        for botnet in botnet_list:
             botnet_queue.put(botnet)
     # wait on the queue until everything has been processed
     botnet_queue.join()

