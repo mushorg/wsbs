@@ -7,6 +7,10 @@ class Trojan_Horse():
  
     def __init__(self):
         self.msg_db = database.MessageDB()
+        self.botnet_db = database.BotnetInfoDB()
+    
+    def log(self, id, msg):
+        print "[irc_client] %s : %s" % (id, msg)
     
     def connect(self, botnet):
         HOST = botnet.irc_addr.split(':')[0]
@@ -36,13 +40,17 @@ class Trojan_Horse():
             self.s.send("USER %s\r\n" % IDENT)
         except socket.timeout, e:
             print "Timeout: %s" % e
+            
             return NAMES
         except socket.error, e:
             print "Error: %s while connecting to the IRC server!" % e[1]
+            self.botnet_db.update_connection("Unable to connect")
             return NAMES
         except Exception, e:
             print "unknown error: %s" % e
             return NAMES
+        else:
+            self.botnet_db.update_connection("True")
         while closed != 1:
             if time.time() - start_time > timerange:
                 print "timeout reached"
@@ -69,7 +77,7 @@ class Trojan_Horse():
                         closed = 1
                     # Channel joined
                     if self.line[1] == "366":
-                        print "IRC Channel successful joined."
+                        self.log(botnet.botnet_id, "IRC Channel successful joined")
                     # List users in channel and get IPs/domains
                     if self.line[1] == "353":
                         self.get_drones()
@@ -90,6 +98,7 @@ class Trojan_Horse():
                         closed = 1
                     if self.line[1] == "TOPIC":
                         print "Got topic: %s" % str(self.line)
+                        self.botnet_db.update_topic(self.line)
             except socket.timeout, e:
                 print "Timeout: %s" % e
                 return NAMES

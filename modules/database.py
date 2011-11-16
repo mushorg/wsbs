@@ -67,7 +67,7 @@ class BotnetInfoDB():
         self.conn.commit()
         cursor.close()
 
-    def select(self):
+    def select_all(self):
         cursor = self.conn.cursor()
         try:
             data = cursor.execute("SELECT * FROM botnet_info").fetchall()
@@ -103,8 +103,8 @@ class BotnetInfoDB():
 
     def update_time(self, timestamp, botnetID): #by shian 20111115
         cursor = self.conn.cursor()
-        cursor.execute("""UPDATE botnet_info SET lasttime = %s WHERE file_md5 == %s""" % (timestamp, botnetID))
-        cursor.commit()
+        cursor.execute("""UPDATE botnet_info SET lasttime = '%s' WHERE id == '%s'""" % (timestamp, str(botnetID)))
+        self.conn.commit()
         cursor.close()
     
     def close_handle(self):
