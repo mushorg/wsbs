@@ -65,11 +65,10 @@ def main():
                              botnet.irc_user, botnet.irc_channel, botnet.sandbox_id, 
                              timestamp)
         else:
-            botnet_db.update_time(botnet.analysis_date, duplicate_botnet_id[0]) #by shian 20111115
-            print "already known"
-        botnet_list = botnet_db.select_all()
-        for botnet in botnet_list:
-            botnet_queue.put(botnet)
+            botnet_db.update_time(botnet.analysis_date, duplicate_botnet_id[0])
+    botnet_list = botnet_db.select_all()
+    for botnet in botnet_list:
+        botnet_queue.put(botnet)
     botnet_db.close_handle()
     # wait on the queue until everything has been processed
     botnet_queue.join()
