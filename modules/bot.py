@@ -13,12 +13,13 @@ class Trojan_Horse():
         print "[irc_client] %s : %s" % (id, msg)
     
     def connect(self, botnet):
+        self.msg_db.createtable(botnet.botnet_id)
         HOST = botnet.irc_addr.split(':')[0]
         PORT = int(botnet.irc_addr.split(':')[1])
         PASS = botnet.irc_server_pwd
         self.CHAN = botnet.irc_channel.split(', ')
         NICK = botnet.irc_nick
-        IDENT = botnet.irc_user
+        USER = botnet.irc_user
         NAMES = []
         readbuffer = ""
         closed = 0
@@ -37,20 +38,11 @@ class Trojan_Horse():
             # Set nick
             self.s.send("NICK %s\r\n" % NICK)
             # Set user
-            self.s.send("USER %s\r\n" % IDENT)
-        except socket.timeout, e:
-            print "Timeout: %s" % e
-            
-            return NAMES
-        except socket.error, e:
-            print "Error: %s while connecting to the IRC server!" % e[1]
-            self.botnet_db.update_connection("Unable to connect")
-            return NAMES
-        except Exception, e:
-            print "unknown error: %s" % e
-            return NAMES
-        else:
-            self.botnet_db.update_connection("True")
+            print USER
+            self.s.send("USER %s\r\n" % USER)
+        except Exception as e:
+            print "unknown error:", e
+            closed = 1
         while closed != 1:
             if time.time() - start_time > timerange:
                 print "timeout reached"
@@ -101,13 +93,10 @@ class Trojan_Horse():
                         self.botnet_db.update_topic(self.line)
             except socket.timeout, e:
                 print "Timeout: %s" % e
-                return NAMES
             except socket.error, e:
                 print "Error: %s while connecting to the IRC server!" % e[1]
-                return NAMES
-            except:
-                print "Unknown error"
-                return NAMES
+            except Exception as e:
+                print "Unknown error:", e
         return NAMES
     
     def get_drones(self):
