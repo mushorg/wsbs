@@ -3,6 +3,7 @@
 VARIOUS
 - Doris, Julia Analyse the collected Data
 Presentation for Saturday
+- Lukas Craft a sample sandbox.db
 
 WESBOS
 Generate botnet profile from sandbox analysis and collected data
@@ -10,3 +11,7 @@ Generate botnet profile from sandbox analysis and collected data
 - Shian, Fish Connection message log into botnet info db
 - Judy Alan, log TOPIC messages into the botnet info db
 Emulating bot behavior by mimicking the other bots
+
+ISSUES
+Monitoring for only one minute...
+Can not write to db due to concurrency
