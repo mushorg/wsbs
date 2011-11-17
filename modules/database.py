@@ -48,13 +48,15 @@ class BotnetInfoDB():
     def create(self):
         cursor = self.conn.cursor()
         try:
-            cursor.execute("CREATE TABLE IF NOT EXISTS botnet_info (id INTEGER PRIMARY KEY, addr TEXT, server_pass TEXT, nick TEXT, user TEXT, channel TEXT, sandboxid TEXT, lasttime TEXT)")
+            cursor.execute("""CREATE TABLE IF NOT EXISTS botnet_info (id INTEGER PRIMARY KEY, 
+            addr TEXT, server_pass TEXT, nick TEXT, user TEXT, channel TEXT, sandboxid TEXT, lasttime TEXT)""")
             self.conn.commit()
         except sqlite3.OperationalError, e:
             print "Creating database Error:", e
         except sqlite3.ProgrammingError, e:
             print "Creating database Error:", e
-        cursor.close()
+        finally:
+            cursor.close()
 
     def insert(self, addr, server_pass, nick, user, channel, sandboxid, time):
         cursor = self.conn.cursor()
@@ -64,29 +66,32 @@ class BotnetInfoDB():
             print "Insert into database Error:", e
         except sqlite3.ProgrammingError, e:
             print "Insert into database Error:", e
-        self.conn.commit()
-        cursor.close()
+        finally:
+           self.conn.commit()
+           cursor.close()
 
     def select_all(self):
         cursor = self.conn.cursor()
+        botnet_list = []
         try:
             data = cursor.execute("SELECT * FROM botnet_info").fetchall()
-            botnet_list = []
             for res in data:
+                print res
                 botnet = Botnet()
                 botnet.botnet_id = res[0]
                 botnet.irc_addr = res[1]
-                botnet.irc_server_pwd = [2]
-                botnet.irc_nick = [3]
-                botnet.irc_user = [4]
+                botnet.irc_server_pwd = res[2]
+                botnet.irc_nick = res[3]
+                botnet.irc_user = res[4]
                 botnet.irc_channel = res[5]
                 botnet_list.append(botnet)
-            cursor.close()
-            return botnet_list
         except sqlite3.OperationalError, e:
             print "Select from database Error:", e
         except sqlite3.ProgrammingError, e:
             print "Select from database Error:", e
+        finally:
+            cursor.close()
+        return botnet_list
 
     def select_by_features(self, addr, channel):
         cursor = self.conn.cursor()
@@ -99,17 +104,29 @@ class BotnetInfoDB():
             print "Select from database Error:", e
         finally:
             cursor.close()
-        return data    
+        return data
 
-    def update_time(self, timestamp, botnetID): #by shian 20111115
+    def update_time(self, timestamp, botnetID):
         cursor = self.conn.cursor()
-        cursor.execute("""UPDATE botnet_info SET lasttime = '%s' WHERE id == '%s'""" % (timestamp, str(botnetID)))
-        self.conn.commit()
-        cursor.close()
-    
+        try:
+            cursor.execute("""UPDATE botnet_info SET lasttime = '%s' WHERE id == '%s'""" % (timestamp, str(botnetID)))
+            self.conn.commit()
+        except sqlite3.OperationalError, e:
+            print "Update Time To database Error:", e
+        except sqlite3.ProgrammingError, e:
+            print "Update Time To database Error:", e
+        finally:
+            cursor.close()
+
+    def update_connection(self):
+        pass
+
+    def update_status(self):
+        pass
+
     def close_handle(self):
         self.conn.close()
-                
+
 class MessageDB():
 
     def __init__(self):
@@ -140,7 +157,8 @@ class MessageDB():
             print "creating table error", e
         except sqlite3.ProgrammingError, e:
             print "creating table error", e
-        cursor.close()
+        finally:
+            cursor.close()
 
     def showall(self, botnetID): # The botnetID should be int
         cursor = self.conn.cursor()
@@ -157,6 +175,6 @@ class MessageDB():
             cursor.close()
         return data
 
-    def closehandle(self):
-        self.conn.commit()
+    def close_handle(self):
         self.conn.close()
+
