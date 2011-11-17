@@ -24,4 +24,4 @@ for i in range(1,32):
     for row in cc.fetchall():
         parsed_msg = parse_msg(row[2].encode('utf-8'))
         if parsed_msg[1] == "311":
-            print parsed_msg[2][3]        
+            print "IP:", parsed_msg[2][3]        
