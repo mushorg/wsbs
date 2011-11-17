@@ -42,7 +42,7 @@ class SandboxDB(object):
 class BotnetInfoDB():
 
     def __init__(self):
-        self.conn = sqlite3.connect('db/botnet_info_msg.db')
+        self.conn = sqlite3.connect('db/botnet_info_msg.db', check_same_thread = False)
         self.create()
 
     def create(self):
@@ -130,7 +130,7 @@ class BotnetInfoDB():
 class MessageDB():
 
     def __init__(self):
-        self.conn = sqlite3.connect('db/botnet_info_msg.db')
+        self.conn = sqlite3.connect('db/botnet_info_msg.db', check_same_thread = False)
         self.prefix = u"Botnet_"
 
     def createtable(self, botnetID): # The botnetID should be int
@@ -154,9 +154,9 @@ class MessageDB():
             cursor.execute(sql, (None, time, msg))
             self.conn.commit()
         except sqlite3.OperationalError, e:
-            print "creating table error", e
+            print "insert table error", e
         except sqlite3.ProgrammingError, e:
-            print "creating table error", e
+            print "insert table error", e
         finally:
             cursor.close()
 
@@ -168,9 +168,9 @@ class MessageDB():
         try:
             data = cursor.execute(sql).fetchall()
         except sqlite3.OperationalError, e:
-            print "Selecting data from db Error", e
+            print "select data from db Error", e
         except sqlite3.ProgrammingError, e:
-            print "Selecting data from db Error", e
+            print "select data from db Error", e
         finally:
             cursor.close()
         return data
