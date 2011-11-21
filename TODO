@@ -1,17 +1,21 @@
 - Lukas HPFeed
 
 VARIOUS
-- Doris, Julia Analyse the collected Data
 Presentation for Saturday
 - Lukas Craft a sample sandbox.db
 
 WESBOS
-Generate botnet profile from sandbox analysis and collected data
+- Doris, Julia Analyse the collected Data
 - YuHan Clean up the bot code
 - Shian, Fish Connection message log into botnet info db
 - Judy Alan, log TOPIC messages into the botnet info db
+Generate re pattern from bot nick
+Distinguish between bot and human based on nickname and behavior
 Emulating bot behavior by mimicking the other bots
+Find related channels
+Generate botnet profile from sandbox analysis and collected data
 
 ISSUES
 Monitoring for only one minute...
 Can not write to db due to concurrency
+Separate db for every botnet?
