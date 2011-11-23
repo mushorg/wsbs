@@ -49,7 +49,7 @@ class BotnetInfoDB():
         cursor = self.conn.cursor()
         try:
             cursor.execute("""CREATE TABLE IF NOT EXISTS botnet_info (id INTEGER PRIMARY KEY, 
-            addr TEXT, server_pass TEXT, nick TEXT, user TEXT, channel TEXT, sandboxid TEXT, lasttime TEXT)""")
+            addr TEXT, server_pass TEXT, nick TEXT, user TEXT, channel TEXT, sandboxid TEXT, lasttime TEXT, topic TEXT)""")
             self.conn.commit()
         except sqlite3.OperationalError, e:
             print "Creating database Error:", e
@@ -123,6 +123,17 @@ class BotnetInfoDB():
 
     def update_status(self):
         pass
+
+    def update_topic(self, line, botnetID):
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute("""UPDATE botnet_info SET topic='%s' WHERE id == '%s' """ %(line, str(botnetID)))
+        except sqlite3.OperationalError, e:
+            print "Update Topic To database Error:", e
+        except sqlite3.ProgrammingError, e:
+            print "Update Topic To database Error:", e
+        finally:
+            cursor.close() 
 
     def close_handle(self):
         self.conn.close()
