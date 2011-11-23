@@ -90,7 +90,7 @@ class Trojan_Horse():
                         closed = 1
                     if self.line[1] == "TOPIC":
                         print "Got topic: %s" % str(self.line)
-                        self.botnet_db.update_topic(self.line)
+                        self.botnet_db.update_topic(self.line,botnet.botnet_id)
             except socket.timeout, e:
                 print "Timeout: %s" % e
             except socket.error, e:
