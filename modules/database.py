@@ -61,14 +61,15 @@ class BotnetInfoDB():
     def insert(self, addr, server_pass, nick, user, channel, sandboxid, time):
         cursor = self.conn.cursor()
         try:
-            cursor.execute("INSERT INTO botnet_info VALUES(?, ?, ?, ?, ?, ?, ?, ?)", (None, addr, server_pass, nick, user, channel, sandboxid, time))
+            if addr: #if C&C server and port exists, insert into db
+                cursor.execute("INSERT INTO botnet_info VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", (None, addr, server_pass, nick, user, channel, sandboxid, time, "None"))
         except sqlite3.OperationalError, e:
             print "Insert into database Error:", e
         except sqlite3.ProgrammingError, e:
             print "Insert into database Error:", e
         finally:
-           self.conn.commit()
-           cursor.close()
+            self.conn.commit()
+            cursor.close()
 
     def select_all(self):
         cursor = self.conn.cursor()
