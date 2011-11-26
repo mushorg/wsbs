@@ -14,6 +14,7 @@ class Trojan_Horse():
     
     def connect(self, botnet):
         self.msg_db.createtable(botnet.botnet_id)
+        
         HOST = botnet.irc_addr.split(':')[0]
         PORT = int(botnet.irc_addr.split(':')[1])
         PASS = botnet.irc_server_pwd
@@ -24,11 +25,13 @@ class Trojan_Horse():
         readbuffer = ""
         closed = 0
         # timerange before timeout
-        timerange = 1*60
+        timerange = 3*24*60*60
         start_time = time.time()
         # Create socket
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # Connect socket
+        #print "##########################################################"
+        #print "HOST="+str(HOST)+" PORT="+str(PORT)+" PASS="+str(PASS)+" NICK="+str(NICK)+" USER="+str(USER)
         try:
             self.s.connect((HOST, PORT))
             self.s.settimeout(5.0)
@@ -52,6 +55,7 @@ class Trojan_Horse():
                 readbuffer = readbuffer + self.s.recv(1024)
                 temp = readbuffer.split("\n")
                 readbuffer = temp.pop()
+                #print "##########################################################"
                 for line in temp:
                     line = line.rstrip()
                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -59,6 +63,7 @@ class Trojan_Horse():
                     self.line = line.split()
                     # The IRC table tennis 
                     if(self.line[0]=="PING"):
+                        print 
                         self.s.send("PONG %s\r\n" % self.line[1])
                     # If connected, join the channel
                     if self.line[1] == "001":
@@ -101,6 +106,7 @@ class Trojan_Horse():
     
     def get_drones(self):
         names = self.line[6:]
+        print "The name list inside the botnet:"+str(names)
         for name in names:
             if name.startswith("@"):
                 name = name.partition("@")[2]
