@@ -47,11 +47,7 @@ class WesBos(threading.Thread):
 
 def main():
     botnet_queue = Queue.Queue()
-    # spawn a pool of threads, and pass them the queue instances 
-    for i in range(10):
-        t = WesBos(botnet_queue)
-        t.setDaemon(True)
-        t.start()
+    
     # populate the file queue with data
     sandbox_db = database.SandboxDB()
     sandbox_list = sandbox_db.get_credentials()
@@ -67,6 +63,14 @@ def main():
         else:
             botnet_db.update_time(botnet.analysis_date, duplicate_botnet_id[0])
     botnet_list = botnet_db.select_all()
+    
+    # spawn a pool of threads, and pass them the queue instances 
+    # Count the unique C&C plus channel, then initialize the thread
+    for i in range(len(botnet_list)):
+        t = WesBos(botnet_queue)
+        t.setDaemon(True)
+        t.start()
+    
     for botnet in botnet_list:
         botnet_queue.put(botnet)
     botnet_db.close_handle()
