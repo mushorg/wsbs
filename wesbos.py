@@ -26,24 +26,18 @@ class WesBos(threading.Thread):
     def __init__(self, botnet_queue):
         threading.Thread.__init__(self)
         self.botnet_queue = botnet_queue
-        self.irc_bot = bot.Trojan_Horse()
 
     def run(self):
-        while True:
+        while self.botnet_queue.qsize() > 0:
             # grabs php file from queue
             botnet = self.botnet_queue.get()
             # process file
-            self.wsb(botnet)
+            irc_bot = bot.Trojan_Horse(botnet)
+            botnet_size = irc_bot.connect()
+            if len(botnet_size) > 0:
+                print "We found %s drones in a botnet!" % len(botnet_size)
             # signals to queue job is done
             self.botnet_queue.task_done()
-            
-    def wsb(self, botnet):
-        NAMES = self.irc_bot.connect(botnet)
-        if len(NAMES) > 0:
-            print "We found %s drones in a botnet!" % len(NAMES)
-        #self.botnet_db.insert(botnet)
-        print "%s files left in queue" % self.botnet_queue.qsize()
-        return
 
 def main():
     botnet_queue = Queue.Queue()
@@ -58,7 +52,7 @@ def main():
         duplicate_botnet_id = botnet_db.select_by_features(botnet.irc_addr, botnet.irc_channel)
         if not duplicate_botnet_id:
             botnet_db.insert(botnet.irc_addr, botnet.irc_server_pwd, botnet.irc_nick, 
-                             botnet.irc_user, botnet.irc_channel, botnet.sandbox_id, 
+                             botnet.irc_user, botnet.irc_mode, botnet.irc_channel, botnet.sandbox_id, 
                              timestamp)
         else:
             botnet_db.update_time(botnet.analysis_date, duplicate_botnet_id[0])
@@ -66,13 +60,13 @@ def main():
     
     # spawn a pool of threads, and pass them the queue instances 
     # Count the unique C&C plus channel, then initialize the thread
+    for botnet in botnet_list:
+        botnet_queue.put(botnet)
     for i in range(len(botnet_list)):
         t = WesBos(botnet_queue)
         t.setDaemon(True)
         t.start()
     
-    for botnet in botnet_list:
-        botnet_queue.put(botnet)
     botnet_db.close_handle()
     # wait on the queue until everything has been processed
     botnet_queue.join()

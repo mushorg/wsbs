@@ -4,110 +4,75 @@ import modules.database as database
 import datetime
 
 class Trojan_Horse():
- 
-    def __init__(self):
-        self.msg_db = database.MessageDB()
-        self.botnet_db = database.BotnetInfoDB()
     
     def log(self, id, msg):
         print "[irc_client] %s : %s" % (id, msg)
-    
-    def connect(self, botnet):
-        self.msg_db.createtable(botnet.botnet_id)
         
-        HOST = botnet.irc_addr.split(':')[0]
-        PORT = int(botnet.irc_addr.split(':')[1])
-        PASS = botnet.irc_server_pwd
-        self.CHAN = botnet.irc_channel.split(', ')
-        NICK = botnet.irc_nick
-        USER = botnet.irc_user
-        NAMES = []
-        readbuffer = ""
-        closed = 0
-        # timerange before timeout
-        timerange = 3*24*60*60
-        start_time = time.time()
+    def __init__(self, botnet):
+        self.botnet_db = database.BotnetInfoDB()
+        try:
+            self.irc_host = botnet.irc_addr.split(':')[0]
+            self.irc_port = int(botnet.irc_addr.split(':')[1])
+        except:
+            self.log(botnet.botnet_id, "IRC server address mal-formed: '%s'" % str(botnet.irc_addr))
+        self.irc_server_pass = botnet.irc_server_pwd
+        self.nick = botnet.irc_nick
+        self.user = botnet.irc_user
+        self.mode = botnet.irc_mode
+        self.chan_list = botnet.irc_channel.split(', ')
+        self.botnet = botnet
+        self.channel_names = []
+        self.retried = False
+        
+    def send_pass(self):
+        self.s.send("PASS %s\r\n" % self.irc_server_pass)
+        
+    def connect(self):
         # Create socket
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # Connect socket
-        #print "##########################################################"
-        #print "HOST="+str(HOST)+" PORT="+str(PORT)+" PASS="+str(PASS)+" NICK="+str(NICK)+" USER="+str(USER)
         try:
-            self.s.connect((HOST, PORT))
+            self.msg_db = database.MessageDB(self.botnet.botnet_id)
             self.s.settimeout(5.0)
+            self.s.connect((self.irc_host, self.irc_port))
             # Send server password
-            if PASS != "":
-                self.s.send("PASS %s\r\n" % PASS)
-            # Set nick
-            self.s.send("NICK %s\r\n" % NICK)
-            # Set user
-            print USER
-            self.s.send("USER %s\r\n" % USER)
+            if self.irc_server_pass != "":
+                self.send_pass()
+        except socket.timeout, e:
+            self.log(self.botnet.botnet_id, "Connection timeout: %s" % e)
+            if not self.retried:
+                self.log(self.botnet.botnet_id, "Reconnecting...")
+                self.retried = True
+                self.s.settimeout(10.0)
+                self.s.connect((self.irc_host, self.irc_port))
         except Exception as e:
-            print "unknown error:", e
-            closed = 1
-        while closed != 1:
-            if time.time() - start_time > timerange:
-                print "timeout reached"
-                self.s.close()
-                break
-            try:
-                readbuffer = readbuffer + self.s.recv(1024)
-                temp = readbuffer.split("\n")
-                readbuffer = temp.pop()
-                #print "##########################################################"
-                for line in temp:
-                    line = line.rstrip()
-                    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    self.msg_db.insert(botnet.botnet_id, timestamp, line)
-                    self.line = line.split()
-                    # The IRC table tennis 
-                    if(self.line[0]=="PING"):
-                        print 
-                        self.s.send("PONG %s\r\n" % self.line[1])
-                    # If connected, join the channel
-                    if self.line[1] == "001":
-                        self.join_channel()
-                    # No channel given
-                    if self.line[1] == "461" and self.line[3] == "JOIN":
-                        self.s.close()
-                        closed = 1
-                    # Channel joined
-                    if self.line[1] == "366":
-                        self.log(botnet.botnet_id, "IRC Channel successful joined")
-                    # List users in channel and get IPs/domains
-                    if self.line[1] == "353":
-                        self.get_drones()
-                    # Nick already in use
-                    if self.line[1] == "433":
-                        NICK = "x" + NICK[1:]
-                        self.s.send("NICK %s\r\n" % NICK)
-                    # Error while connecting (banned?)
-                    if self.line[0] == 'ERROR' and self.line[1] == ':Closing':
-                        self.s.close()
-                        closed = 1
-                    # Whois domain
-                    if self.line[1] == "311":
-                        NAMES.append(self.line[5])
-                    # development command
-                    if self.line[1] == "PRIVMSG" and self.line[3] == ":quit!":
-                        self.s.close()
-                        closed = 1
-                    if self.line[1] == "TOPIC":
-                        print "Got topic: %s" % str(self.line)
-                        self.botnet_db.update_topic(self.line,botnet.botnet_id)
-            except socket.timeout, e:
-                print "Timeout: %s" % e
-            except socket.error, e:
-                print "Error: %s while connecting to the IRC server!" % e[1]
-            except Exception as e:
-                print "Unknown error:", e
-        return NAMES
+            self.log(self.botnet.botnet_id, "Connection error: %s" % str(e))
+            return self.channel_names
+        else:
+            self.log(self.botnet.botnet_id, "Connected to IRC server")
+            self.read()
+    
+    def set_nick(self):
+        # Set nick
+        self.s.send("NICK %s\r\n" % self.nick)
+        
+    def set_user(self):
+        # Set user
+        self.s.send("USER %s\r\n" % self.user)
+        
+    def change_nick(self):
+        # TODO: change nick to a valid bot nick
+        self.nick = "x" + self.nick[1:]
+        self.s.send("self.nick %s\r\n" % self.nick)
+        
+    def set_mode(self):
+        # Set mode
+        self.s.send("MODE %s\r\n" % self.mode)        
+        
     
     def get_drones(self):
-        names = self.line[6:]
-        print "The name list inside the botnet:"+str(names)
-        for name in names:
+        channel_names = self.line[6:]
+        for name in channel_names:
             if name.startswith("@"):
                 name = name.partition("@")[2]
             if name.startswith("&"):
@@ -118,3 +83,72 @@ class Trojan_Horse():
         for channel in self.CHAN:
             if channel != "" and channel != "#":
                 self.s.send("JOIN %s\r\n" % channel)
+        
+    def read(self):
+        readbuffer = ""
+        closed = 0
+        retries = 0
+        # timerange before timeout
+        timerange = 3*24*60*60
+        start_time = time.time()
+        while closed != 1 or retries < 3:
+            if time.time() - start_time > timerange:
+                self.log(self.botnet_id, "Timeout reached")
+                self.s.close()
+                break
+            try:
+                readbuffer = readbuffer + self.s.recv(1024)
+                temp = readbuffer.split("\n")
+                readbuffer = temp.pop()
+                for line in temp:
+                    line = line.rstrip()
+                    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    self.msg_db.insert(timestamp, line)
+                    self.line = line.split()
+                    # The IRC table tennis 
+                    if self.line[0] == "PING":
+                        self.s.send("PONG %s\r\n" % self.line[1])
+                    # If connected, join the channel
+                    if self.line[1] == "001":
+                        self.set_nick()
+                        self.set_user()
+                        self.set_mode()
+                        self.join_channel()
+                    # No channel given
+                    if self.line[1] == "461" and self.line[3] == "JOIN":
+                        self.s.close()
+                        closed = 1
+                    # Channel joined
+                    if self.line[1] == "366":
+                        self.log(self.botnet.botnet_id, "IRC Channel successful joined")
+                    # List users in channel and get IPs/domains
+                    if self.line[1] == "353":
+                        self.get_drones()
+                    # Nick already in use
+                    if self.line[1] == "433":
+                        self.change_nick()
+                    # Error while connecting (banned?)
+                    if self.line[0] == 'ERROR' and self.line[1] == ':Closing':
+                        self.s.close()
+                        closed = 1
+                    # Whois domain
+                    if self.line[1] == "311":
+                        self.channel_names.append(self.line[5])
+                    # development command
+                    if self.line[1] == "PRIVMSG" and self.line[3] == ":quit!":
+                        self.s.close()
+                        closed = 1
+                    if self.line[1] == "TOPIC":
+                        print "Got topic: %s" % str(self.line)
+                        self.botnet_db.update_topic(self.line, self.botnet.botnet_id)
+            except socket.timeout, e:
+                self.log(self.botnet.botnet_id, "Timeout: %s" % e)
+                retries += 1
+            except socket.error, e:
+                self.log(self.botnet.botnet_id, "Error: %s while connecting to the IRC server!" % e[1])
+                retries += 1
+            except Exception as e:
+                self.log(self.botnet.botnet_id, "Unknown error: %s" % str(e))
+                retries += 1
+        self.msg_db.close_handle()
+        return self.channel_names

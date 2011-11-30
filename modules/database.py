@@ -12,6 +12,7 @@ class SandboxBotnet(object):
     irc_mode = ''
     irc_channel = ''
     irc_nickserv = ''
+    irc_topic = ''
     irc_notice = []
     irc_privmsg = []
     
@@ -42,14 +43,14 @@ class SandboxDB(object):
 class BotnetInfoDB():
 
     def __init__(self):
-        self.conn = sqlite3.connect('db/botnet_info_msg.db', check_same_thread = False)
+        self.conn = sqlite3.connect('db/botnet_info.db')
         self.create()
 
     def create(self):
         cursor = self.conn.cursor()
         try:
             cursor.execute("""CREATE TABLE IF NOT EXISTS botnet_info (id INTEGER PRIMARY KEY, 
-            addr TEXT, server_pass TEXT, nick TEXT, user TEXT, channel TEXT, sandboxid TEXT, lasttime TEXT, topic TEXT)""")
+            addr TEXT, server_pass TEXT, nick TEXT, user TEXT, mode TEXT, channel TEXT, sandboxid TEXT, lasttime TEXT, topic TEXT)""")
             self.conn.commit()
         except sqlite3.OperationalError, e:
             print "Creating database Error:", e
@@ -58,11 +59,12 @@ class BotnetInfoDB():
         finally:
             cursor.close()
 
-    def insert(self, addr, server_pass, nick, user, channel, sandboxid, time):
+    def insert(self, addr, server_pass, nick, user, mode, channel, sandboxid, time):
         cursor = self.conn.cursor()
         try:
-            if addr: #if C&C server and port exists, insert into db
-                cursor.execute("INSERT INTO botnet_info VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", (None, addr, server_pass, nick, user, channel, sandboxid, time, "None"))
+            # If C&C server and port exists, insert into db
+            if addr: 
+                cursor.execute("INSERT INTO botnet_info VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", (None, addr, server_pass, nick, user, mode, channel, sandboxid, time, "None"))
         except sqlite3.OperationalError, e:
             print "Insert into database Error:", e
         except sqlite3.ProgrammingError, e:
@@ -77,14 +79,15 @@ class BotnetInfoDB():
         try:
             data = cursor.execute("SELECT * FROM botnet_info").fetchall()
             for res in data:
-                print res
                 botnet = Botnet()
                 botnet.botnet_id = res[0]
                 botnet.irc_addr = res[1]
                 botnet.irc_server_pwd = res[2]
                 botnet.irc_nick = res[3]
                 botnet.irc_user = res[4]
-                botnet.irc_channel = res[5]
+                botnet.irc_mode = res[5]
+                botnet.irc_channel = res[6]
+                botnet.irc_topic = res[7]
                 botnet_list.append(botnet)
         except sqlite3.OperationalError, e:
             print "Select from database Error:", e
@@ -141,15 +144,14 @@ class BotnetInfoDB():
 
 class MessageDB():
 
-    def __init__(self):
-        self.conn = sqlite3.connect('db/botnet_info_msg.db', check_same_thread = False)
-        self.prefix = u"Botnet_"
+    def __init__(self, botnetID):
+        self.conn = sqlite3.connect('db/botnets/Botnet_%s.db' % str(botnetID))
+        self.create_table()
 
-    def createtable(self, botnetID): # The botnetID should be int
-        tablename = self.prefix + str(botnetID)
+    def create_table(self):
         cursor = self.conn.cursor()
         try:
-            cursor.execute("CREATE TABLE IF NOT EXISTS %s (id INTEGER PRIMARY KEY, timestamp TEXT, rawmsg TEXT)" % tablename)
+            cursor.execute("CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY, timestamp TEXT, rawmsg TEXT)")
             self.conn.commit()
         except sqlite3.OperationalError, e:
             print "creating table error", e
@@ -158,12 +160,10 @@ class MessageDB():
         finally:
             cursor.close()
 
-    def insert(self, botnetID, time, msg): # The botnetID should be int
+    def insert(self, time, msg):
         cursor = self.conn.cursor()
-        tablename = self.prefix + str(botnetID)
-        sql = "INSERT INTO %s VALUES(?, ?, ?)" % tablename
         try:
-            cursor.execute(sql, (None, time, msg))
+            cursor.execute("INSERT INTO messages VALUES(?, ?, ?)", (None, time, msg))
             self.conn.commit()
         except sqlite3.OperationalError, e:
             print "insert table error", e
@@ -172,13 +172,11 @@ class MessageDB():
         finally:
             cursor.close()
 
-    def showall(self, botnetID): # The botnetID should be int
+    def show_all(self):
         cursor = self.conn.cursor()
-        tablename = self.prefix + str(botnetID)
         data = None
-        sql = "SELECT * FROM %s" % tablename
         try:
-            data = cursor.execute(sql).fetchall()
+            data = cursor.execute("SELECT * FROM messages").fetchall()
         except sqlite3.OperationalError, e:
             print "select data from db Error", e
         except sqlite3.ProgrammingError, e:
