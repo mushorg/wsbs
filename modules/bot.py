@@ -98,6 +98,7 @@ class Trojan_Horse():
             if time.time() - start_time > timerange:
                 self.log(self.botnet_id, "Timeout reached")
                 self.s.close()
+                self.botnet_db.update_status(self.botnet_db.botnet_id, "server status" , "disconnected")
                 break
             try:
                 readbuffer = readbuffer + self.s.recv(1024)
@@ -120,6 +121,7 @@ class Trojan_Horse():
                     # No channel given
                     if self.line[1] == "461" and self.line[3] == "JOIN":
                         self.s.close()
+                        self.botnet_db.update_status(self.botnet_db.botnet_id, "server status" , "disconnected")
                         closed = 1
                     # Channel joined
                     if self.line[1] == "366":
@@ -132,7 +134,8 @@ class Trojan_Horse():
                         self.change_nick()
                     # Error while connecting (banned?)
                     if self.line[0] == 'ERROR' and self.line[1] == ':Closing':
-                        self.s.close()else
+                        self.s.close()
+                        self.botnet_db.update_status(self.botnet_db.botnet_id, "server status" , "disconnected")
                         closed = 1
                     # Whois domain
                     if self.line[1] == "311":
@@ -140,6 +143,7 @@ class Trojan_Horse():
                     # development command
                     if self.line[1] == "PRIVMSG" and self.line[3] == ":quit!":
                         self.s.close()
+                        self.botnet_db.update_status(self.botnet_db.botnet_id, "server status" , "disconnected")
                         closed = 1
                     if self.line[1] == "TOPIC":
                         print "Got topic: %s" % str(self.line)
@@ -147,16 +151,15 @@ class Trojan_Horse():
             except socket.timeout, e:
                 self.botnet_db.update_status(self.botnet.botnet_id,"server_status","TimeOut")
                 self.log(self.botnet.botnet_id, "Timeout: %s" % e)
-                retries += 1else
+                retries += 1
             except socket.error, e:
-                self.botnet_db.update_status(self.botnet.botnet_id,"server_status","Error")
+                self.botnet_db.update_status(self.botnet.botnet_id,"server_status","Error" + str(e))
                 self.log(self.botnet.botnet_id, "Error: %s while connecting to the IRC server!" % e[1])
                 retries += 1
             except Exception as e:
                 self.botnet_db.update_status(self.botnet.botnet_id,"server_status","Error" + str(e))
                 self.log(self.botnet.botnet_id, "Unknown error: %s" % str(e))
                 retries += 1
-        self.msg_db.close_handle()socket
-        try:
+        self.msg_db.close_handle()
         
-        return self.channel_names
+        
