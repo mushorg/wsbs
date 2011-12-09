@@ -40,15 +40,18 @@ class Trojan_Horse():
                 self.send_pass()
         except socket.timeout, e:
             self.log(self.botnet.botnet_id, "Connection timeout: %s" % e)
+            self.botnet_db.update_status(self.botnet.botnet_id,"server_status","TimeOut")
             if not self.retried:
                 self.log(self.botnet.botnet_id, "Reconnecting...")
                 self.retried = True
                 self.s.settimeout(10.0)
                 self.s.connect((self.irc_host, self.irc_port))
         except Exception as e:
+            self.botnet_db.update_status(self.botnet.botnet_id,"server_status","Error" + str(e))
             self.log(self.botnet.botnet_id, "Connection error: %s" % str(e))
             return self.channel_names
         else:
+            self.botnet_db.update_status(self.botnet.botnet_id,"server_status","Connected")
             self.log(self.botnet.botnet_id, "Connected to IRC server")
             self.read()
     
@@ -129,7 +132,7 @@ class Trojan_Horse():
                         self.change_nick()
                     # Error while connecting (banned?)
                     if self.line[0] == 'ERROR' and self.line[1] == ':Closing':
-                        self.s.close()
+                        self.s.close()else
                         closed = 1
                     # Whois domain
                     if self.line[1] == "311":
@@ -142,13 +145,18 @@ class Trojan_Horse():
                         print "Got topic: %s" % str(self.line)
                         self.botnet_db.update_topic(str(self.line), self.botnet.botnet_id)
             except socket.timeout, e:
+                self.botnet_db.update_status(self.botnet.botnet_id,"server_status","TimeOut")
                 self.log(self.botnet.botnet_id, "Timeout: %s" % e)
-                retries += 1
+                retries += 1else
             except socket.error, e:
+                self.botnet_db.update_status(self.botnet.botnet_id,"server_status","Error")
                 self.log(self.botnet.botnet_id, "Error: %s while connecting to the IRC server!" % e[1])
                 retries += 1
             except Exception as e:
+                self.botnet_db.update_status(self.botnet.botnet_id,"server_status","Error" + str(e))
                 self.log(self.botnet.botnet_id, "Unknown error: %s" % str(e))
                 retries += 1
-        self.msg_db.close_handle()
+        self.msg_db.close_handle()socket
+        try:
+        
         return self.channel_names
