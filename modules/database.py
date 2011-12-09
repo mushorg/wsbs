@@ -18,6 +18,9 @@ class SandboxBotnet(object):
     
 class Botnet(SandboxBotnet):
     botnet_id = None
+    server_status = None
+    channel_status = None
+    bot_status = None
 
 class SandboxDB(object):
     
@@ -50,7 +53,8 @@ class BotnetInfoDB():
         cursor = self.conn.cursor()
         try:
             cursor.execute("""CREATE TABLE IF NOT EXISTS botnet_info (id INTEGER PRIMARY KEY, 
-            addr TEXT, server_pass TEXT, nick TEXT, user TEXT, mode TEXT, channel TEXT, sandboxid TEXT, lasttime TEXT, topic TEXT)""")
+            addr TEXT, server_pass TEXT, nick TEXT, user TEXT, mode TEXT, channel TEXT, sandboxid TEXT,
+            lasttime TEXT, topic TEXT, server_status TEXT, channel_status TEXT, bot_status)""")
             self.conn.commit()
         except sqlite3.OperationalError, e:
             print "Creating database Error:", e
@@ -64,7 +68,7 @@ class BotnetInfoDB():
         try:
             # If C&C server and port exists, insert into db
             if addr: 
-                cursor.execute("INSERT INTO botnet_info VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (None, addr, server_pass, nick, user, mode, channel, sandboxid, time, None))
+                cursor.execute("INSERT INTO botnet_info VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (None, addr, server_pass, nick, user, mode, channel, sandboxid, time, None, None, None, None))
         except sqlite3.OperationalError, e:
             print "Insert into database Error:", e
         except sqlite3.ProgrammingError, e:
@@ -88,6 +92,9 @@ class BotnetInfoDB():
                 botnet.irc_mode = res[5]
                 botnet.irc_channel = res[6]
                 botnet.irc_topic = res[7]
+                botnet.server_status = res[8]
+                botnet.channel_status = res[9]
+                botnet.bot_status = res[10]
                 botnet_list.append(botnet)
         except sqlite3.OperationalError, e:
             print "Select from database Error:", e
@@ -125,8 +132,10 @@ class BotnetInfoDB():
     def update_connection(self):
         pass
 
-    def update_status(self):
-        pass
+    def update_status(self, botnetID, target, status):
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute("""UPDATE botnet_info SET %s = '%s' WHERE id == '%s'""" % (target, status, str(botnetID)))
 
     def update_topic(self, line, botnetID):
         cursor = self.conn.cursor()
