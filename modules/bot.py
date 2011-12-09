@@ -140,7 +140,7 @@ class Trojan_Horse():
                         closed = 1
                     if self.line[1] == "TOPIC":
                         print "Got topic: %s" % str(self.line)
-                        self.botnet_db.update_topic(self.line, self.botnet.botnet_id)
+                        self.botnet_db.update_topic(str(self.line), self.botnet.botnet_id)
             except socket.timeout, e:
                 self.log(self.botnet.botnet_id, "Timeout: %s" % e)
                 retries += 1

@@ -131,7 +131,7 @@ class BotnetInfoDB():
     def update_topic(self, line, botnetID):
         cursor = self.conn.cursor()
         try:
-            cursor.execute("""UPDATE botnet_info SET topic='%s' WHERE id == '%s' """ %(line, str(botnetID)))
+            cursor.execute("""UPDATE botnet_info SET topic='%s' WHERE id == '%s' """ % (line, str(botnetID)))
         except sqlite3.OperationalError, e:
             print "Update Topic To database Error:", e
         except sqlite3.ProgrammingError, e:
