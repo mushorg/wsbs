@@ -64,7 +64,7 @@ class BotnetInfoDB():
         try:
             # If C&C server and port exists, insert into db
             if addr: 
-                cursor.execute("INSERT INTO botnet_info VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", (None, addr, server_pass, nick, user, mode, channel, sandboxid, time, "None"))
+                cursor.execute("INSERT INTO botnet_info VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (None, addr, server_pass, nick, user, mode, channel, sandboxid, time, None))
         except sqlite3.OperationalError, e:
             print "Insert into database Error:", e
         except sqlite3.ProgrammingError, e:
@@ -131,7 +131,7 @@ class BotnetInfoDB():
     def update_topic(self, line, botnetID):
         cursor = self.conn.cursor()
         try:
-            cursor.execute("""UPDATE botnet_info SET topic='%s' WHERE id == '%s' """ % (line, str(botnetID)))
+            cursor.execute("""UPDATE botnet_info SET topic = ? WHERE id == ? """, (line, str(botnetID)))
         except sqlite3.OperationalError, e:
             print "Update Topic To database Error:", e
         except sqlite3.ProgrammingError, e:
