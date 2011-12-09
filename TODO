@@ -1,13 +1,11 @@
 VARIOUS
-Presentation for Sunday
-- Lukas Craft a testing sandbox.db
+- Alan, Ms/r XYZ Final Presentation
 
 
 WESBOS
 - Doris, Julia Analyse the collected Data
 - YuHan, Lukas Clean up the bot code
 - Shian, Fish Connection message log into botnet info db
-- Judy, Alan log TOPIC messages into the botnet info db
 - Lukas HPFeed to get reports from sandbox
 - Doris Generate re pattern from bot nick
 Distinguish between bot and human based on nickname and behavior
@@ -16,5 +14,4 @@ Find related channels from bot/owner whois info
 Generate botnet profile from sandbox analysis and collected data
 
 ISSUES
-More log data
 - YuHan, Lukas Monitoring for only one minute...
