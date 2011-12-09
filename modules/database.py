@@ -54,7 +54,7 @@ class BotnetInfoDB():
         try:
             cursor.execute("""CREATE TABLE IF NOT EXISTS botnet_info (id INTEGER PRIMARY KEY, 
             addr TEXT, server_pass TEXT, nick TEXT, user TEXT, mode TEXT, channel TEXT, sandboxid TEXT,
-            lasttime TEXT, topic TEXT, server_status TEXT, channel_status TEXT, bot_status)""")
+            lasttime TEXT, topic TEXT, server_status TEXT, channel_status TEXT, bot_status TEXT)""")
             self.conn.commit()
         except sqlite3.OperationalError, e:
             print "Creating database Error:", e
