@@ -135,7 +135,8 @@ class BotnetInfoDB():
     def update_status(self, botnetID, target, status):
         cursor = self.conn.cursor()
         try:
-            cursor.execute("""UPDATE botnet_info SET %s = '%s' WHERE id == '%s'""" % (target, status, str(botnetID)))
+            sql_query = """UPDATE botnet_info SET %s = ? WHERE id == """ % target
+            cursor.execute(sql_query, (status, str(botnetID)))
         except sqlite3.OperationalError, e:
             print "Update %s To database Error:" % status, e
         except sqlite3.ProgrammingError, e:
