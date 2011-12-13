@@ -25,7 +25,7 @@ class Botnet(SandboxBotnet):
 class SandboxDB(object):
     
     def __init__(self):
-        self.db = sqlite3.connect('db/sandbox.db')
+        self.db = sqlite3.connect('../db/sandbox.db')
     
     def get_credentials(self):
         botnet_list = []
@@ -46,7 +46,7 @@ class SandboxDB(object):
 class BotnetInfoDB():
 
     def __init__(self):
-        self.conn = sqlite3.connect('db/botnet_info.db')
+        self.conn = sqlite3.connect('../db/botnet_info.db')
         self.create()
 
     def create(self):
@@ -54,7 +54,7 @@ class BotnetInfoDB():
         try:
             cursor.execute("""CREATE TABLE IF NOT EXISTS botnet_info (id INTEGER PRIMARY KEY, 
             addr TEXT, server_pass TEXT, nick TEXT, user TEXT, mode TEXT, channel TEXT, sandboxid TEXT,
-            lasttime TEXT, topic TEXT, server_status TEXT, channel_status TEXT, bot_status TEXT)""")
+            lasttime TEXT, topic TEXT, server_status TEXT, channel_status TEXT, bot_status TEXT, server_type TEXT)""")
             self.conn.commit()
         except sqlite3.OperationalError, e:
             print "Creating database Error:", e
@@ -68,7 +68,7 @@ class BotnetInfoDB():
         try:
             # If C&C server and port exists, insert into db
             if addr: 
-                cursor.execute("INSERT INTO botnet_info VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (None, addr, server_pass, nick, user, mode, channel, sandboxid, time, None, None, None, None))
+                cursor.execute("INSERT INTO botnet_info VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (None, addr, server_pass, nick, user, mode, channel, sandboxid, time, None, None, None, None, None))
         except sqlite3.OperationalError, e:
             print "Insert into database Error:", e
         except sqlite3.ProgrammingError, e:
@@ -149,6 +149,20 @@ class BotnetInfoDB():
         cursor = self.conn.cursor()
         try:
             cursor.execute("""UPDATE botnet_info SET topic = ? WHERE id == ? """, (line, str(botnetID)))
+        except sqlite3.OperationalError, e:
+            print "Update Topic To database Error:", e
+        except sqlite3.ProgrammingError, e:
+            print "Update Topic To database Error:", e
+        finally:
+            self.conn.commit()
+            cursor.close() 
+            
+    def update_servertype(self, botnetID, servertype):
+        """Update server_type of botnet_info """
+        """Function Author: Julia Cheng """
+        cursor = self.conn.cursor()
+        try:
+            cursor.execute("""UPDATE botnet_info SET server_type = ? WHERE id == ? """, (servertype, str(botnetID)))
         except sqlite3.OperationalError, e:
             print "Update Topic To database Error:", e
         except sqlite3.ProgrammingError, e:
