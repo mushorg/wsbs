@@ -37,7 +37,6 @@ class SandboxDB(object):
             botnet.irc_addr, botnet.irc_server_pwd, botnet.irc_nick = res[4:7]
             botnet.irc_user, botnet.irc_mode, botnet.irc_channel = res[7:10]
             botnet.irc_nickserv, botnet.irc_notice, botnet.irc_privmsg = res[10:13]
-            botnet.server_status, botnet.channel_status, botnet.bot_status = res[13:16]
             botnet_list.append(botnet)
         return botnet_list
     
