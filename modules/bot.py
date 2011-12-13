@@ -25,7 +25,7 @@ class Trojan_Horse():
         self.retried = False
     
     def send(self, msg):
-        print repr(msg)
+        #print repr(msg)
         self.s.send(msg)
         
     def send_pass(self):
@@ -37,7 +37,7 @@ class Trojan_Horse():
         # Connect socket
         try:
             self.msg_db = database.MessageDB(self.botnet.botnet_id)
-            #self.s.settimeout(10.0)
+            #self.s.settimeout(20.0)
             self.s.connect((self.irc_host, self.irc_port))
             # Send server password
             if self.irc_server_pass != "":
@@ -86,7 +86,8 @@ class Trojan_Horse():
             self.send("WHOIS %s\r\n" % name)
     
     def join_channel(self):
-        for channel in self.CHAN:
+        for channel in self.chan_list:
+            channel = channel.strip()
             if channel != "" and channel != "#":
                 self.send("JOIN %s\r\n" % channel)
         
@@ -97,6 +98,9 @@ class Trojan_Horse():
         # timerange before timeout
         timerange = 3*24*60*60
         start_time = time.time()
+        self.set_nick()
+        self.set_user()
+        self.set_mode()
         while closed != 1 or retries < 3:
             if time.time() - start_time > timerange:
                 self.log(self.botnet_id, "Timeout reached")
@@ -109,18 +113,15 @@ class Trojan_Horse():
                 readbuffer = temp.pop()
                 for line in temp:
                     line = line.rstrip()
+                    #self.log(self.botnet.botnet_id, line)
                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     self.msg_db.insert(timestamp, line)
                     self.line = line.split()
-                    self.log(self.botnet.botnet_id, self.line)
                     # The IRC table tennis 
                     if self.line[0] == "PING":
                         self.send("PONG %s\r\n" % self.line[1])
                     # If connected, join the channel
                     if self.line[1] == "001":
-                        self.set_nick()
-                        self.set_user()
-                        self.set_mode()
                         self.join_channel()
                     # No channel given
                     if self.line[1] == "461" and self.line[3] == "JOIN":

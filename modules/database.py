@@ -25,7 +25,7 @@ class Botnet(SandboxBotnet):
 class SandboxDB(object):
     
     def __init__(self):
-        self.db = sqlite3.connect('../db/sandbox.db')
+        self.db = sqlite3.connect('db/sandbox.db')
     
     def get_credentials(self):
         botnet_list = []
@@ -47,7 +47,7 @@ class SandboxDB(object):
 class BotnetInfoDB():
 
     def __init__(self):
-        self.conn = sqlite3.connect('../db/botnet_info.db')
+        self.conn = sqlite3.connect('db/botnet_info.db')
         self.create()
 
     def create(self):
