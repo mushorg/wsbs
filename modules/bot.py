@@ -23,9 +23,13 @@ class Trojan_Horse():
         self.botnet = botnet
         self.channel_names = []
         self.retried = False
+    
+    def send(self, msg):
+        print repr(msg)
+        self.s.send(msg)
         
     def send_pass(self):
-        self.s.send("PASS %s\r\n" % self.irc_server_pass)
+        self.send("PASS %s\r\n" % self.irc_server_pass)
         
     def connect(self):
         # Create socket
@@ -33,7 +37,7 @@ class Trojan_Horse():
         # Connect socket
         try:
             self.msg_db = database.MessageDB(self.botnet.botnet_id)
-            self.s.settimeout(5.0)
+            #self.s.settimeout(10.0)
             self.s.connect((self.irc_host, self.irc_port))
             # Send server password
             if self.irc_server_pass != "":
@@ -44,7 +48,6 @@ class Trojan_Horse():
             if not self.retried:
                 self.log(self.botnet.botnet_id, "Reconnecting...")
                 self.retried = True
-                self.s.settimeout(10.0)
                 self.s.connect((self.irc_host, self.irc_port))
         except Exception as e:
             self.botnet_db.update_status(self.botnet.botnet_id,"server_status","Error" + str(e))
@@ -57,20 +60,20 @@ class Trojan_Horse():
     
     def set_nick(self):
         # Set nick
-        self.s.send("NICK %s\r\n" % self.nick)
+        self.send("NICK %s\r\n" % self.nick)
         
     def set_user(self):
         # Set user
-        self.s.send("USER %s\r\n" % self.user)
+        self.send("USER %s\r\n" % self.user)
         
     def change_nick(self):
         # TODO: change nick to a valid bot nick
         self.nick = "x" + self.nick[1:]
-        self.s.send("self.nick %s\r\n" % self.nick)
+        self.send("self.nick %s\r\n" % self.nick)
         
     def set_mode(self):
         # Set mode
-        self.s.send("MODE %s\r\n" % self.mode)        
+        self.send("MODE %s\r\n" % self.mode)        
         
     
     def get_drones(self):
@@ -80,12 +83,12 @@ class Trojan_Horse():
                 name = name.partition("@")[2]
             if name.startswith("&"):
                 name = name.partition("&")[2]
-            self.s.send("WHOIS %s\r\n" % name)
+            self.send("WHOIS %s\r\n" % name)
     
     def join_channel(self):
         for channel in self.CHAN:
             if channel != "" and channel != "#":
-                self.s.send("JOIN %s\r\n" % channel)
+                self.send("JOIN %s\r\n" % channel)
         
     def read(self):
         readbuffer = ""
@@ -98,7 +101,7 @@ class Trojan_Horse():
             if time.time() - start_time > timerange:
                 self.log(self.botnet_id, "Timeout reached")
                 self.s.close()
-                self.botnet_db.update_status(self.botnet_db.botnet_id, "server status" , "disconnected")
+                self.botnet_db.update_status(self.botnet.botnet_id, "server status" , "disconnected")
                 break
             try:
                 readbuffer = readbuffer + self.s.recv(1024)
@@ -109,9 +112,10 @@ class Trojan_Horse():
                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     self.msg_db.insert(timestamp, line)
                     self.line = line.split()
+                    self.log(self.botnet.botnet_id, self.line)
                     # The IRC table tennis 
                     if self.line[0] == "PING":
-                        self.s.send("PONG %s\r\n" % self.line[1])
+                        self.send("PONG %s\r\n" % self.line[1])
                     # If connected, join the channel
                     if self.line[1] == "001":
                         self.set_nick()
@@ -135,7 +139,7 @@ class Trojan_Horse():
                     # Error while connecting (banned?)
                     if self.line[0] == 'ERROR' and self.line[1] == ':Closing':
                         self.s.close()
-                        self.botnet_db.update_status(self.botnet_db.botnet_id, "server status" , "disconnected")
+                        self.botnet_db.update_status(self.botnet.botnet_id, "server status" , "disconnected")
                         closed = 1
                     # Whois domain
                     if self.line[1] == "311":
@@ -143,7 +147,7 @@ class Trojan_Horse():
                     # development command
                     if self.line[1] == "PRIVMSG" and self.line[3] == ":quit!":
                         self.s.close()
-                        self.botnet_db.update_status(self.botnet_db.botnet_id, "server status" , "disconnected")
+                        self.botnet_db.update_status(self.botnet.botnet_id, "server status" , "disconnected")
                         closed = 1
                     if self.line[1] == "TOPIC":
                         print "Got topic: %s" % str(self.line)

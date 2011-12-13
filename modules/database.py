@@ -36,7 +36,8 @@ class SandboxDB(object):
             botnet.sandbox_id, botnet.analysis_date, botnet.file_md5, botnet.file_name = res[0:4]
             botnet.irc_addr, botnet.irc_server_pwd, botnet.irc_nick = res[4:7]
             botnet.irc_user, botnet.irc_mode, botnet.irc_channel = res[7:10]
-            botnet.irc_nickserv, botnet.irc_notice, botnet.irc_privmsg = res[10:]
+            botnet.irc_nickserv, botnet.irc_notice, botnet.irc_privmsg = res[10:13]
+            botnet.server_status, botnet.channel_status, botnet.bot_status = res[13:16]
             botnet_list.append(botnet)
         return botnet_list
     
@@ -92,9 +93,12 @@ class BotnetInfoDB():
                 botnet.irc_mode = res[5]
                 botnet.irc_channel = res[6]
                 botnet.irc_topic = res[7]
-                botnet.server_status = res[8]
-                botnet.channel_status = res[9]
-                botnet.bot_status = res[10]
+                try:
+                    botnet.server_status = res[8]
+                    botnet.channel_status = res[9]
+                    botnet.bot_status = res[10]
+                except:
+                    pass
                 botnet_list.append(botnet)
         except sqlite3.OperationalError, e:
             print "Select from database Error:", e

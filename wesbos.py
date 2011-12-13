@@ -26,15 +26,16 @@ class WesBos(threading.Thread):
     def __init__(self, botnet_queue):
         threading.Thread.__init__(self)
         self.botnet_queue = botnet_queue
-
+    
     def run(self):
         while self.botnet_queue.qsize() > 0:
+            botnet_size = 0
             # grabs php file from queue
             botnet = self.botnet_queue.get()
             # process file
             irc_bot = bot.Trojan_Horse(botnet)
             botnet_size = irc_bot.connect()
-            if botnet_size or len(botnet_size) > 0:
+            if len(botnet_size) > 0:
                 print "We found %s drones in a botnet!" % len(botnet_size)
             # signals to queue job is done
             self.botnet_queue.task_done()
