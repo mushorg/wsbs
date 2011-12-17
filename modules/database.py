@@ -4,7 +4,6 @@ class SandboxBotnet(object):
     sandbox_id = None
     file_name = ''
     file_md5 = ''
-    analysis_date = ''
     irc_addr = ''
     irc_server_pwd = ''
     irc_nick = ''
@@ -15,6 +14,7 @@ class SandboxBotnet(object):
     irc_topic = ''
     irc_notice = []
     irc_privmsg = []
+    analysis_date = ''
     
 class Botnet(SandboxBotnet):
     botnet_id = None
@@ -30,13 +30,13 @@ class SandboxDB(object):
     def get_credentials(self):
         botnet_list = []
         cursor = self.db.cursor()
-        cursor.execute("""SELECT * FROM botnets""")
-        for res in cursor.fetchall():
+        list_in_sandbox = cursor.execute("""SELECT * FROM botnets""").fetchall()
+        for res in list_in_sandbox:
             botnet = SandboxBotnet()
-            botnet.sandbox_id, botnet.analysis_date, botnet.file_md5, botnet.file_name = res[0:4]
-            botnet.irc_addr, botnet.irc_server_pwd, botnet.irc_nick = res[4:7]
-            botnet.irc_user, botnet.irc_mode, botnet.irc_channel = res[7:10]
-            botnet.irc_nickserv, botnet.irc_notice, botnet.irc_privmsg = res[10:13]
+            botnet.sandbox_id, botnet.file_md5, botnet.file_name, botnet.irc_addr = res[0:4]
+            botnet.irc_server_pwd, botnet.irc_nick, botnet.irc_user = res[4:7]
+            botnet.irc_mode, botnet.irc_channel, botnet.irc_nickserv = res[7:10]
+            botnet.irc_notice, botnet.irc_privmsg, botnet.analysis_data = res[10:13]
             botnet_list.append(botnet)
         return botnet_list
     
