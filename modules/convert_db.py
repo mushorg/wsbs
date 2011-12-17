@@ -24,6 +24,9 @@ class convert_botnet_info_db(object):
             if not 'bot_status' in schema[4]:
                 print "Adding bot_status"
                 cursor.execute("""ALTER TABLE botnet_info ADD COLUMN bot_status TEXT""")
+            if not 'server_type' in schema[4]:
+                print "Adding server_type"
+                cursor.execute("""ALTER TABLE botnet_info ADD COLUMN server_type TEXT""")
         except Exception as e:
             print e
         self.conn.commit()
