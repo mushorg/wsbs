@@ -1,6 +1,7 @@
 import sqlite3
 import re
 
+
 class BotTrack():
     def __init__(self):
         self.conn = sqlite3.connect('../db/botip.db')
@@ -20,7 +21,7 @@ class BotTrack():
             print "Creating database Error:", e
         finally:
             cursor.close()
-            
+
     def create_privmsg(self):
         cursor = self.conn.cursor()
         try:
@@ -33,7 +34,7 @@ class BotTrack():
             print "Creating database Error:", e
         finally:
             cursor.close()
-            
+
     def insert_privmsg(self, timestamp, botnet_id, channel, msgtype, info):
         cursor = self.conn.cursor()
         try:
@@ -46,7 +47,7 @@ class BotTrack():
         finally:
             self.conn.commit()
             cursor.close()
-            
+
     def insert_BotIP(self, timestamp, botnet_id, botspy, nickname, username, hostname, realname, geoip_addr, geoip_name):
         cursor = self.conn.cursor()
         try:
@@ -70,22 +71,22 @@ class BotnetAnalysis():
         prefix = ''
         trailing = []
         try:
-            if msg[0] == ':' :
+            if msg[0] == ':':
                 prefix, msg = msg[1:].split(' ', 1)
-            
+
             if msg.find(' :') != -1:
                 msg, trailing = msg.split(' :', 1)
                 args = msg.split()
                 args.append(trailing)
             else:
                 args = msg.split()
-            
+
             command = args.pop(0)
-            return prefix, command, args    
-    
+            return prefix, command, args
+
         except IndexError as e:
             return 0
-        
+
     def PRIVMSG_dork(self, msg):
         for item in msg:
             m = re.search(r'((ftp)|(http)|(https)).*$', item)
@@ -94,18 +95,8 @@ class BotnetAnalysis():
                 command = str(msg[1].split(":")[:1]).replace("[", "").replace("]", "").replace("\'", "")
                 dork_url = m.group(0)
                 return channel, command, dork_url
-    
+
     def Botnet_Server_Type(self, msg):
         '''IRC Response Code = 004 --> Get IRCServer Name and  ServeVersion'''
         server_version = msg[2]
         return server_version
-    
-                  
-            
-                  
-        
-        
-        
-            #if parsed_msg[1] == "311":
-                #print type(parsed_msg[1])
-             #   print "IP:", parsed_msg      
