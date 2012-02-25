@@ -20,6 +20,7 @@ import datetime
 
 import modules.bot as bot
 import modules.database as database
+import sink.hpf_sink as hpfeeds
 
 
 class WesBos(threading.Thread):
