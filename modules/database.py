@@ -1,5 +1,7 @@
 import sqlite3
 
+from datetime import datetime
+
 
 class SandboxBotnet(object):
     sandbox_id = None
@@ -15,7 +17,8 @@ class SandboxBotnet(object):
     irc_topic = ''
     irc_notice = []
     irc_privmsg = []
-    analysis_date = ''
+    first_analysis = ''
+    last_analysis = ''
 
 
 class Botnet(SandboxBotnet):
@@ -33,13 +36,15 @@ class SandboxDB(object):
     def get_credentials(self):
         botnet_list = []
         cursor = self.db.cursor()
-        list_in_sandbox = cursor.execute("""SELECT * FROM botnets""").fetchall()
+        list_in_sandbox = cursor.execute("SELECT * FROM botnets").fetchall()
+        print "Found %s botnet in sandbox.db" % len(list_in_sandbox)
         for res in list_in_sandbox:
             botnet = SandboxBotnet()
             botnet.sandbox_id, botnet.file_md5, botnet.file_name, botnet.irc_addr = res[0:4]
             botnet.irc_server_pwd, botnet.irc_nick, botnet.irc_user = res[4:7]
             botnet.irc_mode, botnet.irc_channel, botnet.irc_nickserv = res[7:10]
-            botnet.irc_notice, botnet.irc_privmsg, botnet.analysis_data = res[10:13]
+            botnet.irc_notice, botnet.irc_privmsg, botnet.first_analysis = res[10:13]
+            botnet.last_analysis = res[13]
             botnet_list.append(botnet)
         return botnet_list
 
@@ -50,40 +55,74 @@ class SandboxDB(object):
 class BotnetInfoDB():
 
     def __init__(self):
-        self.conn = sqlite3.connect('db/botnet_info.db')
         self.create()
 
-    def create(self):
-        cursor = self.conn.cursor()
+    def connect(self):
         try:
-            cursor.execute("""CREATE TABLE IF NOT EXISTS botnet_info (id INTEGER PRIMARY KEY, 
-            addr TEXT, server_pass TEXT, nick TEXT, user TEXT, mode TEXT, channel TEXT, sandboxid TEXT,
-            lasttime TEXT, topic TEXT, server_status TEXT, channel_status TEXT, bot_status TEXT, server_type TEXT)""")
-            self.conn.commit()
+            self.conn = sqlite3.connect('db/botnet_info.db')
+        except sqlite3.OperationalError, e:
+            print "Database connection error:", e
+        except sqlite3.ProgrammingError, e:
+            print "Database connection error:", e
+
+    def create(self):
+        conn = sqlite3.connect('db/botnet_info.db')
+        cursor = conn.cursor()
+        try:
+            cursor.execute("""CREATE TABLE IF NOT EXISTS botnet_info (
+                            id INTEGER PRIMARY KEY,
+                            addr TEXT,
+                            server_pass TEXT,
+                            nick TEXT,
+                            user TEXT,
+                            mode TEXT,
+                            channel TEXT,
+                            sandboxid INTEGER,
+                            lasttime TEXT,
+                            topic TEXT,
+                            server_status TEXT,
+                            channel_status TEXT,
+                            bot_status TEXT,
+                            server_type TEXT)""")
         except sqlite3.OperationalError, e:
             print "Creating database Error:", e
         except sqlite3.ProgrammingError, e:
             print "Creating database Error:", e
+        else:
+            conn.commit()
         finally:
             cursor.close()
+            conn.close()
 
-    def insert(self, addr, server_pass, nick, user, mode, channel, sandboxid, time):
+    def insert(self, botnet):
         cursor = self.conn.cursor()
+        botnet_id = None
         try:
             # If C&C server and port exists, insert into db
-            if addr:
-                cursor.execute("INSERT INTO botnet_info VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
-                               (None, addr, server_pass, nick, user, mode, channel, sandboxid, time, None, None, None, None, None))
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            if botnet.irc_addr:
+                cursor.execute("""INSERT INTO botnet_info VALUES(?, ?, ?, ?, ?,
+                                    ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                               (None, botnet.irc_addr, botnet.irc_server_pwd,
+                                botnet.irc_nick, botnet.irc_user,
+                                ', '.join(botnet.irc_mode),
+                                ', '.join(botnet.irc_channel),
+                                botnet.sandbox_id, timestamp, None, None,
+                                None, None, None))
         except sqlite3.OperationalError, e:
             print "Insert into database Error:", e
         except sqlite3.ProgrammingError, e:
             print "Insert into database Error:", e
-        finally:
+        else:
+            botnet_id = cursor.lastrowid
             self.conn.commit()
+        finally:
             cursor.close()
+        return botnet_id
 
     def select_all(self):
-        cursor = self.conn.cursor()
+        conn = sqlite3.connect('db/botnet_info.db')
+        cursor = conn.cursor()
         botnet_list = []
         try:
             data = cursor.execute("SELECT * FROM botnet_info").fetchall()
@@ -97,12 +136,9 @@ class BotnetInfoDB():
                 botnet.irc_mode = res[5]
                 botnet.irc_channel = res[6]
                 botnet.irc_topic = res[7]
-                try:
-                    botnet.server_status = res[8]
-                    botnet.channel_status = res[9]
-                    botnet.bot_status = res[10]
-                except:
-                    pass
+                botnet.server_status = res[8]
+                botnet.channel_status = res[9]
+                botnet.bot_status = res[10]
                 botnet_list.append(botnet)
         except sqlite3.OperationalError, e:
             print "Select from database Error:", e
@@ -110,38 +146,45 @@ class BotnetInfoDB():
             print "Select from database Error:", e
         finally:
             cursor.close()
+            conn.close()
         return botnet_list
 
     def select_by_features(self, addr, channel):
-        cursor = self.conn.cursor()
+        conn = sqlite3.connect('db/botnet_info.db')
+        cursor = conn.cursor()
         data = None
         try:
-            data = cursor.execute("SELECT id FROM botnet_info WHERE addr == ? AND channel == ?", (addr, channel) ).fetchone()
+            data = cursor.execute("SELECT id FROM botnet_info WHERE addr == ? AND channel == ?",
+                                  (addr, channel)).fetchone()
         except sqlite3.OperationalError, e:
             print "Select from database Error:", e
         except sqlite3.ProgrammingError, e:
             print "Select from database Error:", e
         finally:
             cursor.close()
+            conn.close()
         return data
 
     def update_time(self, timestamp, botnetID):
-        cursor = self.conn.cursor()
+        conn = sqlite3.connect('db/botnet_info.db')
+        cursor = conn.cursor()
         try:
             cursor.execute("""UPDATE botnet_info SET lasttime = '%s' WHERE id == '%s'""" % (timestamp, str(botnetID)))
-            self.conn.commit()
         except sqlite3.OperationalError, e:
             print "Update Time To database Error:", e
         except sqlite3.ProgrammingError, e:
             print "Update Time To database Error:", e
         finally:
+            conn.commit()
             cursor.close()
+            conn.close()
 
     def update_connection(self):
         pass
 
     def update_status(self, botnetID, target, status):
-        cursor = self.conn.cursor()
+        conn = sqlite3.connect('db/botnet_info.db')
+        cursor = conn.cursor()
         try:
             sql_query = """UPDATE botnet_info SET %s = ? WHERE id == ?""" % target
             cursor.execute(sql_query, (status, str(botnetID)))
@@ -150,11 +193,13 @@ class BotnetInfoDB():
         except sqlite3.ProgrammingError, e:
             print "Update %s To database Error:" % status, e
         finally:
-            self.conn.commit()
+            conn.commit()
             cursor.close()
+            conn.close()
 
     def update_topic(self, line, botnetID):
-        cursor = self.conn.cursor()
+        conn = sqlite3.connect('db/botnet_info.db')
+        cursor = conn.cursor()
         try:
             cursor.execute("""UPDATE botnet_info SET topic = ? WHERE id == ? """,
                            (line, str(botnetID)))
@@ -163,13 +208,13 @@ class BotnetInfoDB():
         except sqlite3.ProgrammingError, e:
             print "Update Topic To database Error:", e
         finally:
-            self.conn.commit()
+            conn.commit()
             cursor.close()
+            conn.close()
 
     def update_servertype(self, botnetID, servertype):
-        """Update server_type of botnet_info """
-        """Function Author: Julia Cheng """
-        cursor = self.conn.cursor()
+        conn = sqlite3.connect('db/botnet_info.db')
+        cursor = conn.cursor()
         try:
             cursor.execute("""UPDATE botnet_info SET server_type = ? WHERE id == ? """,
                            (servertype, str(botnetID)))
@@ -178,10 +223,11 @@ class BotnetInfoDB():
         except sqlite3.ProgrammingError, e:
             print "Update Topic To database Error:", e
         finally:
-            self.conn.commit()
-            cursor.close() 
+            conn.commit()
+            cursor.close()
+            conn.close()
 
-    def close_handle(self):
+    def close(self):
         self.conn.close()
 
 

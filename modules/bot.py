@@ -6,23 +6,33 @@ import datetime
 
 class Trojan_Horse():
 
-    def log(self, id, msg):
-        print "[irc_client] %s : %s" % (id, msg)
+    def log(self, msg):
+        print "[irc_client] %s : %s" % (self.botnet.botnet_id, msg)
 
     def __init__(self, botnet):
+        self.botnet = botnet
+        self.mal_formed = False
         self.botnet_db = database.BotnetInfoDB()
         try:
+            if "udp://" in botnet.irc_addr:
+                    botnet.irc_addr = botnet.irc_addr.partition("udp://")[2]
             self.irc_host = botnet.irc_addr.split(':')[0]
             self.irc_port = int(botnet.irc_addr.split(':')[1])
-        except:
-            self.log(botnet.botnet_id, "IRC server address mal-formed: '%s'" % str(botnet.irc_addr))
+        except Exception as e:
+            self.log("IRC server address mal-formed: '%s' error: %s" %
+                     (botnet.irc_addr, str(e)))
+            self.mal_formed = True
         self.irc_server_pass = botnet.irc_server_pwd
         self.nick = botnet.irc_nick
         self.user = botnet.irc_user
         self.mode = botnet.irc_mode
-        self.chan_list = botnet.irc_channel.split(', ')
-        self.botnet = botnet
+        if isinstance(botnet.irc_channel, (str, unicode)):
+            self.chan_list = botnet.irc_channel.split(', ')
+        else:
+            self.chan_list = botnet.irc_channel
         self.channel_names = []
+        self.log(" ".join([self.irc_host, str(self.irc_port),
+                           self.nick, self.user]))
         self.retried = False
 
     def send(self, msg):
@@ -32,42 +42,13 @@ class Trojan_Horse():
     def send_pass(self):
         self.send("PASS %s\r\n" % self.irc_server_pass)
 
-    def connect(self):
-        # Create socket
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # Connect socket
-        try:
-            self.msg_db = database.MessageDB(self.botnet.botnet_id)
-            #self.s.settimeout(20.0)
-            self.s.connect((self.irc_host, self.irc_port))
-            # Send server password
-            if self.irc_server_pass != "":
-                self.send_pass()
-        except socket.timeout, e:
-            self.log(self.botnet.botnet_id, "Connection timeout: %s" % e)
-            self.botnet_db.update_status(self.botnet.botnet_id,
-                                         "server_status", "TimeOut")
-            if not self.retried:
-                self.log(self.botnet.botnet_id, "Reconnecting...")
-                self.retried = True
-                self.s.connect((self.irc_host, self.irc_port))
-        except Exception as e:
-            self.botnet_db.update_status(self.botnet.botnet_id,
-                                         "server_status", "Error" + str(e))
-            self.log(self.botnet.botnet_id, "Connection error: %s" % str(e))
-            return self.channel_names
-        else:
-            self.botnet_db.update_status(self.botnet.botnet_id,
-                                         "server_status", "Connected")
-            self.log(self.botnet.botnet_id, "Connected to IRC server")
-            self.read()
-
     def set_nick(self):
         # Set nick
         self.send("NICK %s\r\n" % self.nick)
 
     def set_user(self):
         # Set user
+        print repr(self.user)
         self.send("USER %s\r\n" % self.user)
 
     def change_nick(self):
@@ -101,15 +82,15 @@ class Trojan_Horse():
         # timerange before timeout
         timerange = 3 * 24 * 60 * 60
         start_time = time.time()
-        self.set_nick()
         self.set_user()
+        self.set_nick()
         self.set_mode()
         while closed != 1 or retries < 3:
             if time.time() - start_time > timerange:
-                self.log(self.botnet_id, "Timeout reached")
+                self.log("Timeout reached")
                 self.s.close()
                 self.botnet_db.update_status(self.botnet.botnet_id,
-                                             "server status", "disconnected")
+                                             "server_status", "disconnected")
                 break
             try:
                 readbuffer = readbuffer + self.s.recv(1024)
@@ -117,7 +98,7 @@ class Trojan_Horse():
                 readbuffer = temp.pop()
                 for line in temp:
                     line = line.rstrip()
-                    #self.log(self.botnet.botnet_id, line)
+                    self.log(line)
                     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     self.msg_db.insert(timestamp, line)
                     self.line = line.split()
@@ -130,12 +111,13 @@ class Trojan_Horse():
                     # No channel given
                     if self.line[1] == "461" and self.line[3] == "JOIN":
                         self.s.close()
-                        self.botnet_db.update_status(self.botnet_db.botnet_id,
-                                        "server status", "disconnected")
+                        self.botnet_db.update_status(self.botnet_id,
+                                        "server_status", "disconnected")
                         closed = 1
+                        break
                     # Channel joined
                     if self.line[1] == "366":
-                        self.log(self.botnet.botnet_id,
+                        self.log(
                                  "IRC Channel successful joined")
                     # List users in channel and get IPs/domains
                     if self.line[1] == "353":
@@ -145,35 +127,79 @@ class Trojan_Horse():
                         self.change_nick()
                     # Error while connecting (banned?)
                     if self.line[0] == 'ERROR' and self.line[1] == ':Closing':
-                        self.s.close()
+                        try:
+                            self.s.close()
+                        except:
+                            print "close failed"
                         self.botnet_db.update_status(self.botnet.botnet_id,
-                                                     "server status", "disconnected")
+                                            "server_status", "disconnected")
                         closed = 1
-                    # Whois domain
+                        break
                     if self.line[1] == "311":
                         self.channel_names.append(self.line[5])
-                    # development command
-                    if self.line[1] == "PRIVMSG" and self.line[3] == ":quit!":
-                        self.s.close()
-                        self.botnet_db.update_status(self.botnet.botnet_id,
-                                                     "server status", "disconnected")
-                        closed = 1
                     if self.line[1] == "TOPIC":
-                        print "Got topic: %s" % str(self.line)
-                        self.botnet_db.update_topic(str(self.line), self.botnet.botnet_id)
+                        self.log("Got topic: %s" % str(self.line))
+                        self.botnet_db.update_topic(str(self.line),
+                                                    self.botnet.botnet_id)
+                    if self.line[1] == "431":
+                        self.log("NICK: No nickname given, disconnecting")
+                        closed = 1
+                        break
+                    if self.line[1] == "461":
+                        self.log("USER: Not enough parameters, disconnecting")
+                        closed = 1
+                        break
             except socket.timeout, e:
                 self.botnet_db.update_status(self.botnet.botnet_id,
-                                             "server_status", "TimeOut")
-                self.log(self.botnet.botnet_id, "Timeout: %s" % e)
+                                             "server_status", "timeout")
+                self.log("Timeout: %s" % e)
                 retries += 1
             except socket.error, e:
                 self.botnet_db.update_status(self.botnet.botnet_id,
-                                             "server_status", "Error" + str(e))
-                self.log(self.botnet.botnet_id, "Error: %s while connecting to the IRC server!" % e[1])
+                                        "server_status", "error %s" % str(e))
+                self.log(
+                        "Error: %s while reading from IRC server!" % e[1])
+                print self.irc_host, self.irc_port
                 retries += 1
             except Exception as e:
                 self.botnet_db.update_status(self.botnet.botnet_id,
-                                             "server_status", "Error" + str(e))
-                self.log(self.botnet.botnet_id, "Unknown error: %s" % str(e))
+                                        "server_status", "error %s" % str(e))
+                self.log(
+                                        "Unknown read error: %s" % str(e))
                 retries += 1
         self.msg_db.close_handle()
+
+    def connect(self):
+        max_reconnects = 4
+        re_connects = 0
+        connected = False
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.msg_db = database.MessageDB(self.botnet.botnet_id)
+        while not connected and re_connects <= max_reconnects:
+            try:
+                #self.s.settimeout(20.0)
+                self.s.connect((self.irc_host, self.irc_port))
+            except socket.timeout, e:
+                self.botnet_db.update_status(self.botnet.botnet_id,
+                                             "server_status", "timeout")
+                self.log("Connection timeout: %s" % e)
+                re_connects += 1
+                time.sleep(2)
+            except Exception as e:
+                self.botnet_db.update_status(self.botnet.botnet_id,
+                                        "server_status", "error %s" % str(e))
+                self.log("Connection error: %s" % str(e))
+                re_connects += 1
+                time.sleep(2)
+            else:
+                self.botnet_db.update_status(self.botnet.botnet_id,
+                                             "server_status", "connected")
+                self.log("Connected to IRC server")
+                connected = True
+        if connected:
+            if self.irc_server_pass != "":
+                self.send_pass()
+            self.read()
+        else:
+            self.log("Unable to connect, finishing job...")
+            return None

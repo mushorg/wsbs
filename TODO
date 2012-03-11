@@ -12,6 +12,3 @@ Distinguish between bot and human based on nickname and behavior
 Emulating bot behavior by mimicking the other bots
 Find related channels from bot/owner whois info
 Generate botnet profile from sandbox analysis and collected data
-
-ISSUES
-- YuHan, Lukas Monitoring for only one minute...
